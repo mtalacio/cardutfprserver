@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GameServer {
+namespace GameServer.Utils {
     public class ByteBuffer : IDisposable {
         private List<byte> buffer;
         private byte[] readBuff;

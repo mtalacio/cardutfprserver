@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace GameServer {
+namespace GameServer.Network {
     class Client {
         public int index;
         public string ip;

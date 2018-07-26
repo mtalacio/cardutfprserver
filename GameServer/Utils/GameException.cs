@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GameServer {
+namespace GameServer.Utils {
     public class AccountExistsException : Exception {
         public AccountExistsException() : base("A conta requerida já existe.") { }
     }

@@ -1,7 +1,8 @@
 ﻿using System;
 using ADODB;
+using GameServer.Utils;
 
-namespace GameServer {
+namespace GameServer.Network {
     public static class MySQL {
         public static Recordset DB_RS = new Recordset();
         public static Connection DB_CONN;

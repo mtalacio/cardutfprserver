@@ -1,13 +1,13 @@
-﻿using System;
-using System.Linq;
+﻿using GameServer.Utils;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using static GameServer.Enums;
 
-namespace GameServer {
-    class Network {
+namespace GameServer.Network {
+    class NetworkSocket {
         public TcpListener ServerSocket;
-        public static Network instance = new Network();
+        public static NetworkSocket instance = new NetworkSocket();
         public static Client[] clients = new Client[Constants.MAX_PLAYERS]; // Classe criada no tutorial
 
 

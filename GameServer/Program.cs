@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GameServer.Network;
+using GameServer.Utils;
+using System;
 using System.Linq;
 using System.Threading;
 using static GameServer.Enums;
@@ -20,7 +22,7 @@ namespace GameServer {
             }
 
             ServerHandleData.InitMessages();
-            Network.instance.ServerStart();
+            NetworkSocket.instance.ServerStart();
             MySQL.MySQLInit();
         }
 
@@ -47,7 +49,7 @@ namespace GameServer {
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteLong((long)ServerPackets.SKick);
             buffer.WriteLong(index);
-            Network.SendDataTo(0, buffer.ToArray());
+            NetworkSocket.SendDataTo(0, buffer.ToArray());
             buffer = null;
         }
     }

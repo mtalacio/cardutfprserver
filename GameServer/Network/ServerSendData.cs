@@ -1,15 +1,16 @@
-﻿using System;
+﻿using GameServer.Utils;
+using System;
 
 using static GameServer.Enums;
 
-namespace GameServer {
+namespace GameServer.Network {
     public static class ServerSendData {
 
         public static void SendServerMessage(long index, string line) {
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteLong((long)ServerPackets.SMessage);
             buffer.WriteString(line);
-            Network.SendDataTo(index, buffer.ToArray());
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
             buffer = null;
         }
 
@@ -17,7 +18,7 @@ namespace GameServer {
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteLong((long)ServerPackets.SLoginResponse);
             buffer.WriteInteger((int)response);
-            Network.SendDataTo(index, buffer.ToArray());
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
             buffer = null;
         }
 
@@ -31,7 +32,7 @@ namespace GameServer {
             buffer.WriteLong((long)place);
             buffer.WriteLong(boardIndex);
 
-            Network.SendDataTo(index, buffer.ToArray());
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
 
             buffer = null;
         }

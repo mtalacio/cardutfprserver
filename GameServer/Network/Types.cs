@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GameServer.Utils;
 
-namespace GameServer {
+namespace GameServer.Network {
     class Types {
 
         public static TempPlayerRec[] tempPlayer = new TempPlayerRec[Constants.MAX_PLAYERS];

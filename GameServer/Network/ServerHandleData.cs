@@ -1,8 +1,9 @@
-﻿using System;
+﻿using GameServer.Utils;
+using System;
 using System.Collections.Generic;
 using static GameServer.Enums;
 
-namespace GameServer {
+namespace GameServer.Network {
     class ServerHandleData {
         private delegate void Packet_(long index, byte[] data);
         private static Dictionary<long, Packet_> packets = new Dictionary<long, Packet_>();
@@ -64,14 +65,13 @@ namespace GameServer {
             long packetNum;
             ByteBuffer buffer;
 
-            Packet_ packet;
             buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             packetNum = buffer.ReadLong();
             buffer = null;
 
             if (packetNum == 0) return;
-            if (packets.TryGetValue(packetNum, out packet)) {
+            if (packets.TryGetValue(packetNum, out Packet_ packet)) {
                 packet.Invoke(index, data);
             }
         }
