@@ -7,13 +7,15 @@ namespace GameServer {
             SKick,
             SSendInGame,
             SLoginResponse,
-            CreateCard
+            CreateCard,
+            SetTurn
         }
 
         public enum ClientPackets {
             CNewAccount = 1,
             CLogin,
-            PlayCard
+            PlayCard,
+            EndTurn
         }
 
         public enum LoginResponse {

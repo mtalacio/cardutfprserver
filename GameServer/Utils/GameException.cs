@@ -16,4 +16,8 @@ namespace GameServer.Utils {
     public class IncorrectPasswordException : Exception {
         public IncorrectPasswordException() : base("Senha incorreta.") { }
     }
+
+    public class IllegalMessageReceivedException : Exception {
+        public IllegalMessageReceivedException() : base("Uma mensagem ilegal foi recebida pelo servidor!") { }
+    }
 }

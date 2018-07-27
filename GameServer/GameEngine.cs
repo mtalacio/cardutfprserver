@@ -1,10 +1,9 @@
 ﻿using GameServer.Game_Objects;
 using GameServer.Network;
+using GameServer.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static GameServer.Enums;
 
 namespace GameServer {
@@ -18,8 +17,12 @@ namespace GameServer {
             }
   
             playerList.Add(player);
-        }
 
+            if(playerList.Count == Constants.MAX_PLAYERS) {
+                ServerSendData.SendSetTurn(0, 1);
+                ServerSendData.SendSetTurn(1, 0);
+            }
+        }
 
         private static List<Card> cardOnBoard1 = new List<Card>();
         private static List<Card> cardOnBoard2 = new List<Card>();
@@ -35,6 +38,24 @@ namespace GameServer {
                 ServerSendData.SendCreateCard(1, cardId, CardPlace.ENEMY_BOARD, boardIndex);
             } else {
                 ServerSendData.SendCreateCard(0, cardId, CardPlace.ENEMY_BOARD, boardIndex);
+            }
+        }
+
+        public static void TurnEnded(long index) {
+
+            if(index != playerOnTurn) {
+                throw new IllegalMessageReceivedException();
+            }
+
+            if (playerOnTurn == 0) {
+                playerOnTurn = 1;
+                ServerSendData.SendSetTurn(0, 0);
+                ServerSendData.SendSetTurn(1, 1);
+            }
+            else {
+                playerOnTurn = 0;
+                ServerSendData.SendSetTurn(0, 1);
+                ServerSendData.SendSetTurn(1, 0);
             }
         }
 

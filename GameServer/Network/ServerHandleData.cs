@@ -14,6 +14,7 @@ namespace GameServer.Network {
             packets.Add((int)ClientPackets.CNewAccount, Packet_CNewAccount);
             packets.Add((int)ClientPackets.CLogin, Packet_CLogin);
             packets.Add((int)ClientPackets.PlayCard, Packet_CardPlayed);
+            packets.Add((int)ClientPackets.EndTurn, Packet_TurnEnded);
         }
 
         public static void HandleData(long index, byte[] data) {
@@ -130,6 +131,16 @@ namespace GameServer.Network {
 
             GameEngine.CardPlayed(cardId, boardIndex);
 
+            buffer = null;
+        }
+
+        private static void Packet_TurnEnded(long index, byte[] data) {
+            Console.WriteLine("Received: CardPlayed from:" + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteBytes(data);
+            long packetNum = buffer.ReadLong();
+
+            GameEngine.TurnEnded(index);
             buffer = null;
         }
     }
