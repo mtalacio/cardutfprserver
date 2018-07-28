@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Network\AccountManager.cs" />
+    <Compile Include="Network\Lobby.cs" />
     <Compile Include="Utils\ByteBuffer.cs" />
     <Compile Include="Network\Client.cs" />
     <Compile Include="Constants.cs" />

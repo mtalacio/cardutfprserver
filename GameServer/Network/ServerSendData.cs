@@ -47,5 +47,6 @@ namespace GameServer.Network {
 
             buffer = null;
         }
+
     }
 }

@@ -19,5 +19,6 @@ namespace GameServer.Utils {
 
     public class IllegalMessageReceivedException : Exception {
         public IllegalMessageReceivedException() : base("Uma mensagem ilegal foi recebida pelo servidor!") { }
+        public IllegalMessageReceivedException(string message) : base(message) { }
     }
 }

@@ -15,7 +15,9 @@ namespace GameServer {
             CNewAccount = 1,
             CLogin,
             PlayCard,
-            EndTurn
+            EndTurn,
+            PlayerReady,
+            DrawCards
         }
 
         public enum LoginResponse {

@@ -15,6 +15,9 @@ namespace GameServer.Network {
             packets.Add((int)ClientPackets.CLogin, Packet_CLogin);
             packets.Add((int)ClientPackets.PlayCard, Packet_CardPlayed);
             packets.Add((int)ClientPackets.EndTurn, Packet_TurnEnded);
+            packets.Add((int)ClientPackets.PlayerReady, Packet_PlayerRead);
+            packets.Add((int)ClientPackets.DrawCards, Packet_DrawCard);
+            
         }
 
         public static void HandleData(long index, byte[] data) {
@@ -129,7 +132,7 @@ namespace GameServer.Network {
             int boardIndex = (int)buffer.ReadLong();
             Console.WriteLine("Card Id: " + cardId + " BoardIndex: " + boardIndex);
 
-            GameEngine.CardPlayed(cardId, boardIndex);
+            GameEngine.CardPlayed(index, cardId, boardIndex);
 
             buffer = null;
         }
@@ -141,6 +144,28 @@ namespace GameServer.Network {
             long packetNum = buffer.ReadLong();
 
             GameEngine.TurnEnded(index);
+            buffer = null;
+        }
+
+        private static void Packet_PlayerRead(long index, byte[] data) {
+            Console.WriteLine("Received: Player Ready from: " + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteBytes(data);
+            long packetNum = buffer.ReadLong();
+
+            Lobby.PlayerReady(index);
+            buffer = null;
+        }
+
+        private static void Packet_DrawCard(long index, byte[] data) {
+            Console.WriteLine("Received: Draw Card from: " + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteBytes(data);
+            long packetNum = buffer.ReadLong();
+
+            long qtd = buffer.ReadLong();
+
+            GameEngine.DrawCardTo(index, qtd);
             buffer = null;
         }
     }
