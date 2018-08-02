@@ -21,4 +21,8 @@ namespace GameServer.Utils {
         public IllegalMessageReceivedException() : base("Uma mensagem ilegal foi recebida pelo servidor!") { }
         public IllegalMessageReceivedException(string message) : base(message) { }
     }
+
+    public class CardNotFoundException : Exception {
+        public CardNotFoundException() : base("Carta não encontrada no banco de dados") { }
+    }
 }

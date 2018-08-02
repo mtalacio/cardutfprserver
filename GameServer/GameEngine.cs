@@ -3,7 +3,6 @@ using GameServer.Network;
 using GameServer.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static GameServer.Enums;
 
 namespace GameServer {
@@ -36,6 +35,17 @@ namespace GameServer {
             if (playerIndex != _playerOnTurn)
                 throw new IllegalMessageReceivedException("Carta Jogada por jogador não permitido.");
 
+            Card cardPlayed;
+            if (_playerOnTurn == 0) {
+                cardPlayed = _cardsOnHand1.Find(x => x.CardId == cardId);
+                _cardsOnHand1.Remove(cardPlayed);
+            }
+            else {
+                cardPlayed = _cardsOnHand2.Find(x => x.CardId == cardId);
+                _cardsOnHand2.Remove(cardPlayed);
+            }
+
+            cardPlayed.PlayCard();
             ServerSendData.SendCreateCard(_playerOnTurn == 0 ? 1 : 0, cardId, CardPlace.ENEMY_BOARD, boardIndex);
         }
 
@@ -54,27 +64,27 @@ namespace GameServer {
         }
 
         public static void DrawCardTo(long index, long qtd) {
-            //TODO: Cards are going to be server-identifier, redo code.
+            //TODO: Cards are going to be server-identified, redo code.
 
             if (index == 0) { 
                 if (_cardsOnDeck1.Count == 0)
                     return;
 
                 for (int i = 0; i < qtd; i++) {
-                    Card toDrawn = _cardsOnDeck1[0];
-                    ServerSendData.SendCreateCard(0, toDrawn.CardId, CardPlace.HAND, -1);
-                    _cardsOnDeck1.Remove(toDrawn);
-                    _cardsOnHand1.Add(toDrawn);
+                    Card toDraw = _cardsOnDeck1[0];
+                    ServerSendData.SendCreateCard(0, toDraw.CardId, CardPlace.HAND, -1);
+                    _cardsOnDeck1.Remove(toDraw);
+                    _cardsOnHand1.Add(toDraw);
                 }
             } else {
                 if (_cardsOnDeck2.Count == 0)
                     return;
 
                 for (int i = 0; i < qtd; i++) {
-                    Card toDrawn = _cardsOnDeck2[0];
-                    ServerSendData.SendCreateCard(1, toDrawn.CardId, CardPlace.HAND, -1);
-                    _cardsOnDeck2.Remove(toDrawn);
-                    _cardsOnHand2.Add(toDrawn);
+                    Card toDraw = _cardsOnDeck2[0];
+                    ServerSendData.SendCreateCard(1, toDraw.CardId, CardPlace.HAND, -1);
+                    _cardsOnDeck2.Remove(toDraw);
+                    _cardsOnHand2.Add(toDraw);
                 }
             }
         }
@@ -92,21 +102,17 @@ namespace GameServer {
 
             //FIXME: Temp code for testing purposes
             _cardsOnDeck1 = new List<Card> {
-                    new Card(0, 0),
-                    new Card(1, 0),
-                    new Card(0, 0),
-                    new Card(1, 0),
-                    new Card(0, 0),
-                    new Card(1, 0)
+                Database.GetCard(0, 0, 0),
+                Database.GetCard(1, 1, 0),
+                Database.GetCard(0, 2, 0),
+                Database.GetCard(1, 3, 0)
             };
 
             _cardsOnDeck2 = new List<Card> {
-                    new Card(0, 1),
-                    new Card(1, 1),
-                    new Card(0, 1),
-                    new Card(1, 1),
-                    new Card(0, 1),
-                    new Card(1, 1)
+                Database.GetCard(0, 4, 1),
+                Database.GetCard(1, 5, 1),
+                Database.GetCard(0, 6, 1),
+                Database.GetCard(1, 7, 1)
             };
 
         }

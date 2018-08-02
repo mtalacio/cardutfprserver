@@ -2,6 +2,7 @@
 using GameServer.Utils;
 using System;
 using System.Threading;
+using GameServer.Game_Objects;
 using static GameServer.Enums;
 
 namespace GameServer {
@@ -23,6 +24,7 @@ namespace GameServer {
             ServerHandleData.InitMessages();
             NetworkSocket.Instance.ServerStart();
             MySql.MySqlInit();
+            Database.InitializeCardDatabase();
         }
 
 

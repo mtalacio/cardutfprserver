@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Card Behaviours\Card_Matheus.cs" />
+    <Compile Include="Card Behaviours\Card_Talacio.cs" />
+    <Compile Include="Game Objects\Database.cs" />
     <Compile Include="Network\AccountManager.cs" />
     <Compile Include="Network\Lobby.cs" />
     <Compile Include="Utils\ByteBuffer.cs" />
@@ -74,8 +77,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Card Behaviours\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
