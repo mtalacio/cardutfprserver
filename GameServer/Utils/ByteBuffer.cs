@@ -4,191 +4,190 @@ using System.Text;
 
 namespace GameServer.Utils {
     public class ByteBuffer : IDisposable {
-        private List<byte> buffer;
-        private byte[] readBuff;
-        private int readPos;
-        private bool buffUpdate = false;
+        private readonly List<byte> _buffer;
+        private byte[] _readBuff;
+        private int _readPos;
+        private bool _buffUpdate;
 
         public ByteBuffer() {
-            buffer = new List<byte>();
-            readPos = 0;
+            _buffer = new List<byte>();
+            _readPos = 0;
         }
 
         public int GetReadPos() {
-            return readPos;
+            return _readPos;
         }
 
         public byte[] ToArray() {
-            return buffer.ToArray();
+            return _buffer.ToArray();
         }
 
         public int Count() {
-            return buffer.Count;
+            return _buffer.Count;
         }
 
         public int Lenght() {
-            return Count() - readPos;
+            return Count() - _readPos;
         }
 
         public void Clear() {
-            buffer.Clear();
-            readPos = 0;
+            _buffer.Clear();
+            _readPos = 0;
         }
 
         #region Write Functions
 
         public void WriteByte(byte input) {
-            buffer.Add(input);
-            buffUpdate = true;
+            _buffer.Add(input);
+            _buffUpdate = true;
         }
 
         public void WriteBytes(byte[] input) {
-            buffer.AddRange(input);
-            buffUpdate = true;
+            _buffer.AddRange(input);
+            _buffUpdate = true;
         }
 
         public void WriteShort(short input) {
-            buffer.AddRange(BitConverter.GetBytes(input));
-            buffUpdate = true;
+            _buffer.AddRange(BitConverter.GetBytes(input));
+            _buffUpdate = true;
         }
 
         public void WriteInteger(int input) {
-            buffer.AddRange(BitConverter.GetBytes(input));
-            buffUpdate = true;
+            _buffer.AddRange(BitConverter.GetBytes(input));
+            _buffUpdate = true;
         }
 
         public void WriteLong(long input) {
-            buffer.AddRange(BitConverter.GetBytes(input));
-            buffUpdate = true;
+            _buffer.AddRange(BitConverter.GetBytes(input));
+            _buffUpdate = true;
         }
 
         public void WriteFloat(float input) {
-            buffer.AddRange(BitConverter.GetBytes(input));
-            buffUpdate = true;
+            _buffer.AddRange(BitConverter.GetBytes(input));
+            _buffUpdate = true;
         }
 
         public void WriteString(string input) {
-            buffer.AddRange(BitConverter.GetBytes(input.Length));
-            buffer.AddRange(Encoding.ASCII.GetBytes(input));
-            buffUpdate = true;
+            _buffer.AddRange(BitConverter.GetBytes(input.Length));
+            _buffer.AddRange(Encoding.ASCII.GetBytes(input));
+            _buffUpdate = true;
         }
 
         #endregion
 
         #region Read Functions
 
-        public int ReadInteger(bool Peek = true) {
-            if (buffer.Count > readPos) {
-                if (buffUpdate) {
-                    readBuff = buffer.ToArray();
-                    buffUpdate = false;
-                }
+        public int ReadInteger(bool peek = true) {
 
-                int ret = BitConverter.ToInt32(readBuff, readPos);
-                if (Peek & buffer.Count > readPos) {
-                    readPos += 4;
-                }
-                return ret;
-            }
-            else {
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer is past limit!");
+
+            if (_buffUpdate) {
+                _readBuff = _buffer.ToArray();
+                _buffUpdate = false;
             }
+
+            int ret = BitConverter.ToInt32(_readBuff, _readPos);
+            if (peek & _buffer.Count > _readPos) {
+                _readPos += 4;
+            }
+            return ret;
+
         }
 
-        public long ReadLong(bool Peek = true) {
-            if (buffer.Count > readPos) {
-                if (buffUpdate) {
-                    readBuff = buffer.ToArray();
-                    buffUpdate = false;
-                }
-
-                long ret = BitConverter.ToInt64(readBuff, readPos);
-                if (Peek & buffer.Count > readPos) {
-                    readPos += 8;
-                }
-                return ret;
-            }
-            else {
+        public long ReadLong(bool peek = true) {
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer is past limit!");
+
+            if (_buffUpdate) {
+                _readBuff = _buffer.ToArray();
+                _buffUpdate = false;
             }
+
+            long ret = BitConverter.ToInt64(_readBuff, _readPos);
+            if (peek & _buffer.Count > _readPos) {
+                _readPos += 8;
+            }
+            return ret;
+
         }
 
-        public string ReadString(bool Peek = true) {
-            int leng = ReadInteger(true);
-            if (buffUpdate) {
-                readBuff = buffer.ToArray();
-                buffUpdate = false;
+        public string ReadString(bool peek = true) {
+            int leng = ReadInteger();
+            if (_buffUpdate) {
+                _readBuff = _buffer.ToArray();
+                _buffUpdate = false;
             }
-            string ret = Encoding.ASCII.GetString(readBuff, readPos, leng);
-            if (Peek && buffer.Count > readPos) {
-                if (ret.Length > 0) {
-                    readPos += leng;
-                }
+            string ret = Encoding.ASCII.GetString(_readBuff, _readPos, leng);
+
+            if (!peek || _buffer.Count <= _readPos)
+                return ret;
+
+            if (ret.Length > 0) {
+                _readPos += leng;
             }
 
             return ret;
         }
 
-        public byte ReadByte(bool Peek = true) {
-            if (buffer.Count > readPos) {
-                if (buffUpdate) {
-                    readBuff = buffer.ToArray();
-                    buffUpdate = false;
-                }
-
-                byte ret = readBuff[readPos];
-                if (Peek & buffer.Count > readPos) {
-                    readPos += 1;
-                }
-                return ret;
-            }
-            else {
+        public byte ReadByte(bool peek = true) {
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer is past limit!");
+
+            if (_buffUpdate) {
+                _readBuff = _buffer.ToArray();
+                _buffUpdate = false;
             }
+
+            byte ret = _readBuff[_readPos];
+            if (peek & _buffer.Count > _readPos) {
+                _readPos += 1;
+            }
+            return ret;
+
         }
 
-        public byte[] ReadBytes(int leng, bool Peek = true) {
-            if (buffUpdate) {
-                readBuff = buffer.ToArray();
-                buffUpdate = false;
+        public byte[] ReadBytes(int leng, bool peek = true) {
+            if (_buffUpdate) {
+                _readBuff = _buffer.ToArray();
+                _buffUpdate = false;
             }
 
-            byte[] ret = buffer.GetRange(readPos, leng).ToArray();
-            if (Peek) {
-                readPos += leng;
+            byte[] ret = _buffer.GetRange(_readPos, leng).ToArray();
+            if (peek) {
+                _readPos += leng;
             }
             return ret;
         }
 
-        public float ReadFloat(bool Peek = true) {
-            if (buffer.Count > readPos) {
-                if (buffUpdate) {
-                    readBuff = buffer.ToArray();
-                    buffUpdate = false;
-                }
-
-                float ret = BitConverter.ToSingle(readBuff, readPos);
-                if (Peek & buffer.Count > readPos) {
-                    readPos += 4;
-                }
-                return ret;
-            }
-            else {
+        public float ReadFloat(bool peek = true) {
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer is past limit!");
+
+            if (_buffUpdate) {
+                _readBuff = _buffer.ToArray();
+                _buffUpdate = false;
             }
+
+            float ret = BitConverter.ToSingle(_readBuff, _readPos);
+            if (peek & _buffer.Count > _readPos) {
+                _readPos += 4;
+            }
+            return ret;
+
         }
 
         #endregion
 
-        private bool disposedValue = false;
+        private bool _disposedValue;
         protected virtual void Dispose(bool disposing) {
-            if (!disposedValue) {
+            if (!_disposedValue) {
                 if (disposing)
-                    buffer.Clear();
+                    _buffer.Clear();
 
-                readPos = 0;
+                _readPos = 0;
             }
-            disposedValue = true;
+            _disposedValue = true;
         }
 
         public void Dispose() {

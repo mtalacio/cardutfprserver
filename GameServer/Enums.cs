@@ -1,6 +1,6 @@
 ﻿
 namespace GameServer {
-    public class Enums {
+    public static class Enums {
         public enum ServerPackets {
             SWelcome = 1,
             SMessage,

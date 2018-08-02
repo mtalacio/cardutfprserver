@@ -4,78 +4,76 @@ using System.Collections.Generic;
 using static GameServer.Enums;
 
 namespace GameServer.Network {
-    class ServerHandleData {
-        private delegate void Packet_(long index, byte[] data);
-        private static Dictionary<long, Packet_> packets = new Dictionary<long, Packet_>();
-        private static long pLenght;
+    internal static class ServerHandleData {
+        private delegate void Packet(long index, byte[] data);
+        private static readonly Dictionary<long, Packet> Packets = new Dictionary<long, Packet>();
+        private static long _pLenght;
 
         public static void InitMessages() {
             Console.WriteLine("Initializing Network Messages...");
-            packets.Add((int)ClientPackets.CNewAccount, Packet_CNewAccount);
-            packets.Add((int)ClientPackets.CLogin, Packet_CLogin);
-            packets.Add((int)ClientPackets.PlayCard, Packet_CardPlayed);
-            packets.Add((int)ClientPackets.EndTurn, Packet_TurnEnded);
-            packets.Add((int)ClientPackets.PlayerReady, Packet_PlayerRead);
-            packets.Add((int)ClientPackets.DrawCards, Packet_DrawCard);
+            Packets.Add((int)ClientPackets.CNewAccount, Packet_CNewAccount);
+            Packets.Add((int)ClientPackets.CLogin, Packet_CLogin);
+            Packets.Add((int)ClientPackets.PlayCard, Packet_CardPlayed);
+            Packets.Add((int)ClientPackets.EndTurn, Packet_TurnEnded);
+            Packets.Add((int)ClientPackets.PlayerReady, Packet_PlayerRead);
+            Packets.Add((int)ClientPackets.DrawCards, Packet_DrawCard);
             
         }
 
         public static void HandleData(long index, byte[] data) {
-            byte[] buffer;
-            buffer = (byte[])data.Clone();
-            if (Types.tempPlayer[index].buffer == null)
-                Types.tempPlayer[index].buffer = new ByteBuffer();
-            Types.tempPlayer[index].buffer.WriteBytes(buffer);
+            var buffer = (byte[])data.Clone();
+            if (Types.TempPlayer[index].Buffer == null)
+                Types.TempPlayer[index].Buffer = new ByteBuffer();
+            Types.TempPlayer[index].Buffer.WriteBytes(buffer);
 
-            if (Types.tempPlayer[index].buffer.Count() == 0) {
-                Types.tempPlayer[index].buffer.Clear();
+            if (Types.TempPlayer[index].Buffer.Count() == 0) {
+                Types.TempPlayer[index].Buffer.Clear();
                 return;
             }
 
-            if (Types.tempPlayer[index].buffer.Lenght() >= 4) {
-                pLenght = Types.tempPlayer[index].buffer.ReadLong(false);
-                if (pLenght <= 0) {
-                    Types.tempPlayer[index].buffer.Clear();
+            if (Types.TempPlayer[index].Buffer.Lenght() >= 4) {
+                _pLenght = Types.TempPlayer[index].Buffer.ReadLong(false);
+                if (_pLenght <= 0) {
+                    Types.TempPlayer[index].Buffer.Clear();
                     return;
                 }
             }
 
-            while (pLenght > 0 && pLenght <= Types.tempPlayer[index].buffer.Lenght() - 8) {
+            while (_pLenght > 0 && _pLenght <= Types.TempPlayer[index].Buffer.Lenght() - 8) {
 
-                if (pLenght <= Types.tempPlayer[index].buffer.Lenght() - 8) {
-                    Types.tempPlayer[index].buffer.ReadLong();
-                    data = Types.tempPlayer[index].buffer.ReadBytes((int)pLenght);
+                if (_pLenght <= Types.TempPlayer[index].Buffer.Lenght() - 8) {
+                    Types.TempPlayer[index].Buffer.ReadLong();
+                    data = Types.TempPlayer[index].Buffer.ReadBytes((int)_pLenght);
                     HandleDataPackets(index, data);
                 }
 
-                pLenght = 0;
+                _pLenght = 0;
 
-                if (Types.tempPlayer[index].buffer.Lenght() >= 4) {
-                    pLenght = Types.tempPlayer[index].buffer.ReadLong(false);
-                    if (pLenght < 0) {
-                        Types.tempPlayer[index].buffer.Clear();
-                        return;
-                    }
-                }
+                if (Types.TempPlayer[index].Buffer.Lenght() < 4) continue;
+
+                _pLenght = Types.TempPlayer[index].Buffer.ReadLong(false);
+
+                if (_pLenght >= 0) continue;
+
+                Types.TempPlayer[index].Buffer.Clear();
+
+                return;
             }
 
-            if (pLenght <= 1) {
-                Types.tempPlayer[index].buffer.Clear();
+            if (_pLenght <= 1) {
+                Types.TempPlayer[index].Buffer.Clear();
             }
 
         }
 
-        public static void HandleDataPackets(long index, byte[] data) {
-            long packetNum;
-            ByteBuffer buffer;
+        private static void HandleDataPackets(long index, byte[] data) {
 
-            buffer = new ByteBuffer();
+            ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            packetNum = buffer.ReadLong();
-            buffer = null;
+            long packetNum = buffer.ReadLong();
 
             if (packetNum == 0) return;
-            if (packets.TryGetValue(packetNum, out Packet_ packet)) {
+            if (Packets.TryGetValue(packetNum, out Packet packet)) {
                 packet.Invoke(index, data);
             }
         }
@@ -85,7 +83,7 @@ namespace GameServer.Network {
 
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            long packetNum = buffer.ReadLong();
+            buffer.ReadLong();
             string username = buffer.ReadString();
             string password = buffer.ReadString();
 
@@ -105,7 +103,7 @@ namespace GameServer.Network {
 
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            long packetNum = buffer.ReadLong();
+            buffer.ReadLong();
             string username = buffer.ReadString();
             string password = buffer.ReadString();
 
@@ -126,47 +124,42 @@ namespace GameServer.Network {
             Console.WriteLine("Received: CardPlayed from:" + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            long packetNum = buffer.ReadLong();
+            buffer.ReadLong();
 
             int cardId = (int)buffer.ReadLong();
             int boardIndex = (int)buffer.ReadLong();
             Console.WriteLine("Card Id: " + cardId + " BoardIndex: " + boardIndex);
 
             GameEngine.CardPlayed(index, cardId, boardIndex);
-
-            buffer = null;
         }
 
         private static void Packet_TurnEnded(long index, byte[] data) {
             Console.WriteLine("Received: CardPlayed from:" + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            long packetNum = buffer.ReadLong();
+            buffer.ReadLong();
 
             GameEngine.TurnEnded(index);
-            buffer = null;
         }
 
         private static void Packet_PlayerRead(long index, byte[] data) {
             Console.WriteLine("Received: Player Ready from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            long packetNum = buffer.ReadLong();
+            buffer.ReadLong();
 
             Lobby.PlayerReady(index);
-            buffer = null;
         }
 
         private static void Packet_DrawCard(long index, byte[] data) {
             Console.WriteLine("Received: Draw Card from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
-            long packetNum = buffer.ReadLong();
+            buffer.ReadLong();
 
             long qtd = buffer.ReadLong();
 
-            GameEngine.DrawCardTo(index, qtd);
-            buffer = null;
+            GameEngine.DrawCardTo(index, qtd);            
         }
     }
 }

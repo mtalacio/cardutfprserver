@@ -3,25 +3,23 @@ using ADODB;
 using GameServer.Utils;
 
 namespace GameServer.Network {
-    public static class MySQL {
-        public static Recordset DB_RS = new Recordset();
-        public static Connection DB_CONN;
+    public static class MySql {
+        private static Recordset _dbRs = new Recordset();
+        private static Connection _dbConn;
 
-        private static string connectionString = "Driver={MySQL ODBC 5.3 Unicode Driver};Server=localhost;Database=gamedatabase;User=root;Password=;Option=3;";
+        private const string CONNECTION_STRING = "Driver={MySQL ODBC 5.3 Unicode Driver};Server=localhost;Database=gamedatabase;User=root;Password=;Option=3;";
 
-        public static void MySQLInit() {
+        public static void MySqlInit() {
             Console.WriteLine("Connecting to MySQL...");
             try {
-                DB_RS = new Recordset();
-                DB_CONN = new Connection {
-                    ConnectionString = connectionString,
+                _dbRs = new Recordset();
+                _dbConn = new Connection {
+                    ConnectionString = CONNECTION_STRING,
                     CursorLocation = CursorLocationEnum.adUseServer
                 };
 
-                DB_CONN.Open();
+                _dbConn.Open();
                 Console.WriteLine("Connection to MYSQL Server established");
-
-                //DB_RS.Open("Select * from players where login = 'Matheus'", DB_CONN, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic, -1);
             }
             catch (Exception e) {
                 Console.WriteLine(e.Message);
@@ -30,48 +28,47 @@ namespace GameServer.Network {
 
         public static object[,] GetRows(string str) {
 
-            DB_RS.Open(str, DB_CONN, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic, -1);
+            _dbRs.Open(str, _dbConn, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic);
 
-            if(DB_RS.EOF) {
-                DB_RS.Close();
+            if(_dbRs.EOF) {
+                _dbRs.Close();
                 throw new EndOfRecordsetException();
             }
                 
 
-            DB_RS.MoveFirst();
+            _dbRs.MoveFirst();
 
-            object[,] result = DB_RS.GetRows();
+            object[,] result = _dbRs.GetRows();
 
-            DB_RS.Close();
+            _dbRs.Close();
 
             return result;
 
         }
 
         public static bool RecordExists(string str) {
-            DB_RS.Open(str, DB_CONN, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic, -1);
+            _dbRs.Open(str, _dbConn, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic);
 
-            if (DB_RS.EOF) {
-                DB_RS.Close();
+            if (_dbRs.EOF) {
+                _dbRs.Close();
                 return false;
             }
-            else {
-                DB_RS.Close();
-                return true;
-            }
+
+            _dbRs.Close();
+            return true;
         }
 
         public static void InsertAccount(string username, string password) {
-            DB_RS.Open("select * from players where login = '" + username + "'", DB_CONN, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic, -1);
+            _dbRs.Open("select * from players where login = '" + username + "'", _dbConn, CursorTypeEnum.adOpenStatic, LockTypeEnum.adLockOptimistic);
 
-            DB_RS.AddNew();
-            DB_RS.Fields[1].Value = username;
-            DB_RS.Fields[2].Value = password;
-            DB_RS.Fields[3].Value = 0;
-            DB_RS.Fields[4].Value = 0;
-            DB_RS.Update();
+            _dbRs.AddNew();
+            _dbRs.Fields[1].Value = username;
+            _dbRs.Fields[2].Value = password;
+            _dbRs.Fields[3].Value = 0;
+            _dbRs.Fields[4].Value = 0;
+            _dbRs.Update();
 
-            DB_RS.Close();
+            _dbRs.Close();
         }
 
         

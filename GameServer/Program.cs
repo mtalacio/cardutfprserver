@@ -1,46 +1,41 @@
 ﻿using GameServer.Network;
 using GameServer.Utils;
 using System;
-using System.Linq;
 using System.Threading;
 using static GameServer.Enums;
 
 namespace GameServer {
-    class Program {
-        private static Thread threadConsole;
-        private static bool consoleRunning;
+    internal static class Program {
+        private static Thread _threadConsole;
+        private static bool _consoleRunning;
 
-        static void Main(string[] args) {
-            threadConsole = new Thread(new ThreadStart(ConsoleThread));
-            threadConsole.Start();
+        private static void Main(string[] args) {
+            _threadConsole = new Thread(ConsoleThread);
+            _threadConsole.Start();
             SetupServer();
         }
 
-        static void SetupServer() {
+        private static void SetupServer() {
             for (int i = 0; i < Constants.MAX_PLAYERS; i++) {
-                Types.tempPlayer[i] = new Types.TempPlayerRec();
+                Types.TempPlayer[i] = new Types.TempPlayerRec();
             }
 
             ServerHandleData.InitMessages();
-            NetworkSocket.instance.ServerStart();
-            MySQL.MySQLInit();
+            NetworkSocket.Instance.ServerStart();
+            MySql.MySqlInit();
         }
 
 
         private static void ConsoleThread() {
-            string line;
-            consoleRunning = true;
+            _consoleRunning = true;
 
-            while (consoleRunning) {
-                line = Console.ReadLine();
+            while (_consoleRunning) {
+                string line = Console.ReadLine();
 
-                if (String.IsNullOrWhiteSpace(line)) {
-                    consoleRunning = false;
-                    return;
-                }
-                else {
-                    KickPlayer(0);
-                }
+                if (!string.IsNullOrWhiteSpace(line)) continue;
+
+                _consoleRunning = false;
+                return;
             }
         }
 
@@ -50,7 +45,6 @@ namespace GameServer {
             buffer.WriteLong((long)ServerPackets.SKick);
             buffer.WriteLong(index);
             NetworkSocket.SendDataTo(0, buffer.ToArray());
-            buffer = null;
         }
     }
 }

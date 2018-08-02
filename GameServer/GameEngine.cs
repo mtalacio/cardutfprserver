@@ -9,76 +9,72 @@ using static GameServer.Enums;
 namespace GameServer {
     public static class GameEngine {
 
-        private static List<Player> playerList = new List<Player>();
+        private static readonly List<Player> PlayerList = new List<Player>();
         public static void AddPlayer(Player player) {
-            if(playerList.Count > Constants.MAX_PLAYERS) {
+            if(PlayerList.Count > Constants.MAX_PLAYERS) {
                 Console.WriteLine("Attempt to add a player beyond MAX_PLAYERS.");
                 return;
             }
   
-            playerList.Add(player);
+            PlayerList.Add(player);
         }
 
-        private static List<Card> cardsOnBoard1 = new List<Card>();
-        private static List<Card> cardsOnBoard2 = new List<Card>();
+        // Not yet implemented
+        //private static List<Card> _cardsOnBoard1 = new List<Card>();
+        //private static List<Card> _cardsOnBoard2 = new List<Card>();
 
-        private static List<Card> cardsOnHand1 = new List<Card>();
-        private static List<Card> cardsOnHand2 = new List<Card>();
+        private static List<Card> _cardsOnHand1 = new List<Card>();
+        private static List<Card> _cardsOnHand2 = new List<Card>();
 
-        private static List<Card> cardsOnDeck1;
-        private static List<Card> cardsOnDeck2;
+        private static List<Card> _cardsOnDeck1;
+        private static List<Card> _cardsOnDeck2;
 
         #region Events
 
-        public static void CardPlayed(long playerIndex, int cardId, int boardIndex) {
-
-            if ((int)playerIndex != playerOnTurn)
+        public static void CardPlayed(long playerIndex, int cardId, int boardIndex)
+        {
+            if (playerIndex != _playerOnTurn)
                 throw new IllegalMessageReceivedException("Carta Jogada por jogador não permitido.");
 
-            if (playerOnTurn == 0) { 
-                ServerSendData.SendCreateCard(1, cardId, CardPlace.ENEMY_BOARD, boardIndex);
-            } else {
-                ServerSendData.SendCreateCard(0, cardId, CardPlace.ENEMY_BOARD, boardIndex);
-            }
+            ServerSendData.SendCreateCard(_playerOnTurn == 0 ? 1 : 0, cardId, CardPlace.ENEMY_BOARD, boardIndex);
         }
 
         public static void TurnEnded(long index) {
 
-            if(index != playerOnTurn) {
+            if(index != _playerOnTurn) {
                 throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
             }
 
-            if (playerOnTurn == 0) {
-                playerOnTurn = 1;
-                ServerSendData.SendSetTurn(0, 0);
-                ServerSendData.SendSetTurn(1, 1);
-            }
-            else {
-                playerOnTurn = 0;
-                ServerSendData.SendSetTurn(0, 1);
-                ServerSendData.SendSetTurn(1, 0);
-            }
+            _playerOnTurn = _playerOnTurn == 0 ? 1 : 0;
+
+            Console.WriteLine("Starting Player " + _playerOnTurn + " turn.");
+
+            ServerSendData.SendSetTurn(0, _playerOnTurn == 0 ? 1 : 0);
+            ServerSendData.SendSetTurn(1, _playerOnTurn == 0 ? 0 : 1);
         }
 
         public static void DrawCardTo(long index, long qtd) {
-            //TODO: Decide if cards are server identified or not
-            if (index == 0) {
-                if (cardsOnDeck1.Count == 0)
+            //TODO: Cards are going to be server-identifier, redo code.
+
+            if (index == 0) { 
+                if (_cardsOnDeck1.Count == 0)
                     return;
+
                 for (int i = 0; i < qtd; i++) {
-                    Card toDrawn = cardsOnDeck1[0];
+                    Card toDrawn = _cardsOnDeck1[0];
                     ServerSendData.SendCreateCard(0, toDrawn.CardId, CardPlace.HAND, -1);
-                    cardsOnDeck1.Remove(toDrawn);
-                    cardsOnHand1.Add(toDrawn);
+                    _cardsOnDeck1.Remove(toDrawn);
+                    _cardsOnHand1.Add(toDrawn);
                 }
             } else {
-                if (cardsOnDeck2.Count == 0)
+                if (_cardsOnDeck2.Count == 0)
                     return;
+
                 for (int i = 0; i < qtd; i++) {
-                    Card toDrawn = cardsOnDeck2[0];
+                    Card toDrawn = _cardsOnDeck2[0];
                     ServerSendData.SendCreateCard(1, toDrawn.CardId, CardPlace.HAND, -1);
-                    cardsOnDeck2.Remove(toDrawn);
-                    cardsOnHand2.Add(toDrawn);
+                    _cardsOnDeck2.Remove(toDrawn);
+                    _cardsOnHand2.Add(toDrawn);
                 }
             }
         }
@@ -87,15 +83,15 @@ namespace GameServer {
 
         #region Game State
 
-        private static int playerOnTurn = 0;    
+        private static int _playerOnTurn;    
 
         public static void InitializeGame() {
-            playerOnTurn = 0;
+            _playerOnTurn = 0;
             ServerSendData.SendSetTurn(0, 1);
             ServerSendData.SendSetTurn(1, 0);
 
-            //NOTE: Temp code for testing purposes
-            cardsOnDeck1 = new List<Card> {
+            //FIXME: Temp code for testing purposes
+            _cardsOnDeck1 = new List<Card> {
                     new Card(0, 0),
                     new Card(1, 0),
                     new Card(0, 0),
@@ -104,7 +100,7 @@ namespace GameServer {
                     new Card(1, 0)
             };
 
-            cardsOnDeck2 = new List<Card> {
+            _cardsOnDeck2 = new List<Card> {
                     new Card(0, 1),
                     new Card(1, 1),
                     new Card(0, 1),

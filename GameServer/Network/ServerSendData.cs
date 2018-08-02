@@ -11,7 +11,6 @@ namespace GameServer.Network {
             buffer.WriteLong((long)ServerPackets.SMessage);
             buffer.WriteString(line);
             NetworkSocket.SendDataTo(index, buffer.ToArray());
-            buffer = null;
         }
 
         public static void SendLoginResponse(long index, LoginResponse response) {
@@ -19,7 +18,6 @@ namespace GameServer.Network {
             buffer.WriteLong((long)ServerPackets.SLoginResponse);
             buffer.WriteInteger((int)response);
             NetworkSocket.SendDataTo(index, buffer.ToArray());
-            buffer = null;
         }
 
         public static void SendCreateCard(long index, long cardId, CardPlace place, long boardIndex) {
@@ -32,20 +30,16 @@ namespace GameServer.Network {
             buffer.WriteLong(boardIndex);
 
             NetworkSocket.SendDataTo(index, buffer.ToArray());
-
-            buffer = null;
         }
 
         public static void SendSetTurn(long index, long your) {
-            Console.WriteLine("Sending SendSetTurn to: " + index);
+            Console.WriteLine("Sending SendSetTurn" + your + " to: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteLong((long)ServerPackets.SetTurn);
 
             buffer.WriteLong(your);
 
             NetworkSocket.SendDataTo(index, buffer.ToArray());
-
-            buffer = null;
         }
 
     }

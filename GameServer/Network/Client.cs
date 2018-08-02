@@ -2,25 +2,26 @@
 using System.Net.Sockets;
 
 namespace GameServer.Network {
-    class Client {
-        public int index;
-        public string ip;
-        public TcpClient socket;
-        public NetworkStream myStream;
-        private byte[] readBuff;
+    internal class Client {
+        public int Index { private get; set; }
+        public string Ip { get; set; }
+        public TcpClient Socket1 { get; set; }
+        public NetworkStream MyStream { get; private set; }
+
+        private byte[] _readBuff;
 
         public void Start() {
-            socket.SendBufferSize = 4096;
-            socket.ReceiveBufferSize = 4096;
-            myStream = socket.GetStream();
-            Array.Resize(ref readBuff, socket.ReceiveBufferSize);
-            myStream.BeginRead(readBuff, 0, socket.ReceiveBufferSize, OnReceiveData, null);
+            Socket1.SendBufferSize = 4096;
+            Socket1.ReceiveBufferSize = 4096;
+            MyStream = Socket1.GetStream();
+            Array.Resize(ref _readBuff, Socket1.ReceiveBufferSize);
+            MyStream.BeginRead(_readBuff, 0, Socket1.ReceiveBufferSize, OnReceiveData, null);
         }
 
         private void OnReceiveData(IAsyncResult result) {
             try {
-                int readBytes = myStream.EndRead(result);
-                if (socket == null) {
+                int readBytes = MyStream.EndRead(result);
+                if (Socket1 == null) {
                     return;
                 }
                 if (readBytes <= 0) {
@@ -30,28 +31,27 @@ namespace GameServer.Network {
 
                 byte[] newBytes = null;
                 Array.Resize(ref newBytes, readBytes);
-                Buffer.BlockCopy(readBuff, 0, newBytes, 0, readBytes);
+                Buffer.BlockCopy(_readBuff, 0, newBytes, 0, readBytes);
 
-                ServerHandleData.HandleData(index, newBytes);
+                ServerHandleData.HandleData(Index, newBytes);
 
-                if (socket == null) {
+                if (Socket1 == null) {
                     return;
                 }
 
-                myStream.BeginRead(readBuff, 0, socket.ReceiveBufferSize, OnReceiveData, null);
+                MyStream.BeginRead(_readBuff, 0, Socket1.ReceiveBufferSize, OnReceiveData, null);
 
             }
             catch (Exception e) {
                 CloseConnection();
                 Console.WriteLine(e.Message);
-                return;
             }
         }
 
         private void CloseConnection() {
-            socket.Close();
-            socket = null;
-            Console.WriteLine("Connection of client index: " + index + " closed and destroyed.");
+            Socket1.Close();
+            Socket1 = null;
+            Console.WriteLine("Connection of client index: " + Index + " closed and destroyed.");
         }
     }
 }
