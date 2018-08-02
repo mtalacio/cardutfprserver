@@ -20,12 +20,13 @@ namespace GameServer.Network {
             NetworkSocket.SendDataTo(index, buffer.ToArray());
         }
 
-        public static void SendCreateCard(long index, long cardId, CardPlace place, long boardIndex) {
+        public static void SendCreateCard(long index, long cardId, long serverId, CardPlace place, long boardIndex) {
             Console.WriteLine("Sending CreateCard to: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteLong((long)ServerPackets.CreateCard);
 
             buffer.WriteLong(cardId);
+            buffer.WriteLong(serverId);
             buffer.WriteLong((long)place);
             buffer.WriteLong(boardIndex);
 

@@ -29,7 +29,8 @@ namespace GameServer {
         public enum CardPlace {
             HAND,
             BOARD,
-            ENEMY_BOARD
+            ENEMY_BOARD,
+            DECK
         }
     }
 }

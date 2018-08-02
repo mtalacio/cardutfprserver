@@ -1,15 +1,17 @@
 ﻿using System;
-using GameServer.Card_Behaviours;
+using System.Collections.Generic;
 using static GameServer.Enums;
 
 namespace GameServer.Game_Objects {
+
+    internal delegate void Battlecry(Card cardBase);
+    internal delegate void Deathrattle(Card cardBase);
+
     internal class Card {
 
         public int ServerId { get; private set; }
         public CardPlace Place { get; private set; }
         public int OwnerIndex { get; private set; }
-
-       
 
         public int CurrentHealth { get; private set; }
         public int CurrentAttack { get; private set; }
@@ -17,12 +19,15 @@ namespace GameServer.Game_Objects {
 
         public int CardId { get; }
 
-        protected int Health;
-        protected int Attack;
-        protected int Mana;
+        public readonly int Health;
+        public readonly int Attack;
+        public readonly int Mana;
 
-        public Card(int cardId, int health, int attack, int mana) {
-            Place = CardPlace.HAND;
+        private readonly List<Battlecry> _battlecries = new List<Battlecry>();
+        private readonly List<Deathrattle> _deathrattles = new List<Deathrattle>();
+
+        public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle) {
+            Place = CardPlace.DECK;
             CardId = cardId;
 
             Health = health;
@@ -32,6 +37,12 @@ namespace GameServer.Game_Objects {
             CurrentHealth = health;
             CurrentAttack = attack;
             CurrentMana = mana;
+
+            if(baseBattlecry != null)
+                _battlecries.Add(baseBattlecry);
+
+            if(baseDeathrattle != null)
+                _deathrattles.Add(baseDeathrattle);
         }
 
         public virtual Card CloneCard() {
@@ -62,11 +73,14 @@ namespace GameServer.Game_Objects {
 
         public void PlayCard() {
             ChangePlace(CardPlace.BOARD);
-            Battlecry();
+            CallBattlecries();
         }
 
-        public virtual void Battlecry() {
-
+        private void CallBattlecries() {
+            foreach (Battlecry battlecry in _battlecries) {
+                battlecry.Invoke(this);
+            }
         }
+
     }
 }

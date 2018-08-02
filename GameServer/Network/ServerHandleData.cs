@@ -126,11 +126,12 @@ namespace GameServer.Network {
             buffer.WriteBytes(data);
             buffer.ReadLong();
 
-            int cardId = (int)buffer.ReadLong();
-            int boardIndex = (int)buffer.ReadLong();
-            Console.WriteLine("Card Id: " + cardId + " BoardIndex: " + boardIndex);
+            int serverId = (int)buffer.ReadLong();
 
-            GameEngine.CardPlayed(index, cardId, boardIndex);
+            int boardIndex = (int)buffer.ReadLong();
+            Console.WriteLine("Server Id: " + serverId + " BoardIndex: " + boardIndex);
+
+            GameEngine.CardPlayed(index, serverId, boardIndex);
         }
 
         private static void Packet_TurnEnded(long index, byte[] data) {

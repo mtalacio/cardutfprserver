@@ -22,31 +22,34 @@ namespace GameServer {
         //private static List<Card> _cardsOnBoard1 = new List<Card>();
         //private static List<Card> _cardsOnBoard2 = new List<Card>();
 
-        private static List<Card> _cardsOnHand1 = new List<Card>();
-        private static List<Card> _cardsOnHand2 = new List<Card>();
+        private static readonly List<Card> CardsOnHand1 = new List<Card>();
+        private static readonly List<Card> CardsOnHand2 = new List<Card>();
 
         private static List<Card> _cardsOnDeck1;
         private static List<Card> _cardsOnDeck2;
 
         #region Events
 
-        public static void CardPlayed(long playerIndex, int cardId, int boardIndex)
+        public static void CardPlayed(long playerIndex, int serverId, int boardIndex)
         {
             if (playerIndex != _playerOnTurn)
                 throw new IllegalMessageReceivedException("Carta Jogada por jogador não permitido.");
 
             Card cardPlayed;
             if (_playerOnTurn == 0) {
-                cardPlayed = _cardsOnHand1.Find(x => x.CardId == cardId);
-                _cardsOnHand1.Remove(cardPlayed);
+                cardPlayed = CardsOnHand1.Find(x => x.ServerId == serverId);
+                CardsOnHand1.Remove(cardPlayed);
             }
             else {
-                cardPlayed = _cardsOnHand2.Find(x => x.CardId == cardId);
-                _cardsOnHand2.Remove(cardPlayed);
+                cardPlayed = CardsOnHand2.Find(x => x.ServerId == serverId);
+                CardsOnHand2.Remove(cardPlayed);
             }
 
+            if(cardPlayed == null)
+                throw new CardNotFoundException();
+
             cardPlayed.PlayCard();
-            ServerSendData.SendCreateCard(_playerOnTurn == 0 ? 1 : 0, cardId, CardPlace.ENEMY_BOARD, boardIndex);
+            ServerSendData.SendCreateCard(_playerOnTurn == 0 ? 1 : 0, cardPlayed.CardId, cardPlayed.ServerId, CardPlace.ENEMY_BOARD, boardIndex);
         }
 
         public static void TurnEnded(long index) {
@@ -55,6 +58,10 @@ namespace GameServer {
                 throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
             }
 
+            StartTurn();
+        }
+
+        private static void StartTurn() {
             _playerOnTurn = _playerOnTurn == 0 ? 1 : 0;
 
             Console.WriteLine("Starting Player " + _playerOnTurn + " turn.");
@@ -64,27 +71,30 @@ namespace GameServer {
         }
 
         public static void DrawCardTo(long index, long qtd) {
-            //TODO: Cards are going to be server-identified, redo code.
+
+            Card toDraw;
 
             if (index == 0) { 
                 if (_cardsOnDeck1.Count == 0)
                     return;
 
                 for (int i = 0; i < qtd; i++) {
-                    Card toDraw = _cardsOnDeck1[0];
-                    ServerSendData.SendCreateCard(0, toDraw.CardId, CardPlace.HAND, -1);
+                    toDraw = _cardsOnDeck1[0];
+                    ServerSendData.SendCreateCard(0, toDraw.CardId, toDraw.ServerId, CardPlace.HAND, -1);
                     _cardsOnDeck1.Remove(toDraw);
-                    _cardsOnHand1.Add(toDraw);
+                    CardsOnHand1.Add(toDraw);
+                    toDraw.ChangePlace(CardPlace.HAND);
                 }
             } else {
                 if (_cardsOnDeck2.Count == 0)
                     return;
 
                 for (int i = 0; i < qtd; i++) {
-                    Card toDraw = _cardsOnDeck2[0];
-                    ServerSendData.SendCreateCard(1, toDraw.CardId, CardPlace.HAND, -1);
+                    toDraw = _cardsOnDeck2[0];
+                    ServerSendData.SendCreateCard(1, toDraw.CardId, toDraw.ServerId, CardPlace.HAND, -1);
                     _cardsOnDeck2.Remove(toDraw);
-                    _cardsOnHand2.Add(toDraw);
+                    CardsOnHand2.Add(toDraw);
+                    toDraw.ChangePlace(CardPlace.HAND);
                 }
             }
         }
@@ -99,6 +109,8 @@ namespace GameServer {
             _playerOnTurn = 0;
             ServerSendData.SendSetTurn(0, 1);
             ServerSendData.SendSetTurn(1, 0);
+
+            
 
             //FIXME: Temp code for testing purposes
             _cardsOnDeck1 = new List<Card> {
@@ -115,6 +127,8 @@ namespace GameServer {
                 Database.GetCard(1, 7, 1)
             };
 
+            DrawCardTo(0, 3);
+            DrawCardTo(1, 4);
         }
 
         #endregion

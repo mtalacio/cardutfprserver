@@ -5,20 +5,29 @@ using GameServer.Utils;
 
 namespace GameServer.Game_Objects {
     internal static class Database {
-        private static readonly List<Card> CardDatabase = new List<Card>();
+        private static readonly List<CardModel> ModelDatabase = new List<CardModel>();
 
         public static void InitializeCardDatabase() {
             Console.WriteLine("Initializing Card Database");
-            CardDatabase.Add(new MatheusCard(0, 10, 2, 1));
-            CardDatabase.Add(new TalacioCard(1, 2, 10, 2));
+            ModelDatabase.Add(new MatheusCard(0, 10, 2, 2));
+            ModelDatabase.Add(new TalacioCard(1, 2, 10, 2));
             Console.WriteLine("Card Database Initialized");
         }
 
         public static Card GetCard(int cardId, int serverId, int ownerIndex) {
-            Card toInstantiate = CardDatabase.Find(x => x.CardId == cardId).CloneCard();
+            CardModel behaviourModel = ModelDatabase.Find(x => x.Id == cardId);
             
-            if(toInstantiate == null)
-                throw new CardNotFoundException();
+            if(behaviourModel == null)
+                throw new BehaviourNotFoundException();
+
+            Card toInstantiate = new Card(
+                behaviourModel.Id, 
+                behaviourModel.Health, 
+                behaviourModel.Attack, 
+                behaviourModel.Mana, 
+                behaviourModel.GetBattlecry(), 
+                behaviourModel.GetDeathrattle()
+                );
 
             toInstantiate.InstantiateCard(serverId, ownerIndex);
 

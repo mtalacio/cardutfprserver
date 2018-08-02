@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 using GameServer.Game_Objects;
 
 namespace GameServer.Card_Behaviours {
-    internal class TalacioCard : Card {
-        public TalacioCard(int cardId, int health, int attack, int mana) : base(cardId, health, attack, mana) { }
-
-        public override Card CloneCard() {
-            return new TalacioCard(CardId, Health, Attack, Mana);
-        }
+    internal class TalacioCard : CardModel {
+        public TalacioCard(int id, int health, int attack, int mana) : base(id, health, attack, mana) { }
     }
 }

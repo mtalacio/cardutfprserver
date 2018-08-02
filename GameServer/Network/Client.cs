@@ -45,6 +45,7 @@ namespace GameServer.Network {
             catch (Exception e) {
                 CloseConnection();
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 

@@ -6,17 +6,12 @@ using System.Threading.Tasks;
 using GameServer.Game_Objects;
 
 namespace GameServer.Card_Behaviours {
-    internal class MatheusCard : Card {
+    internal class MatheusCard : CardModel {
 
-        public MatheusCard(int cardId, int health, int attack, int mana) : base(cardId, health, attack, mana) { }
+        public MatheusCard(int id, int health, int attack, int mana) : base(id, health, attack, mana) { }
 
-        public override void Battlecry() {
-            base.Battlecry();
-            Console.WriteLine("Teste de Battlecry");
-        }
-
-        public override Card CloneCard() {
-            return new MatheusCard(CardId, Health, Attack, Mana);
+        public override Battlecry GetBattlecry() {
+            return model => Console.WriteLine("Teste Battlecry");
         }
     }
 }
