@@ -49,7 +49,21 @@ namespace GameServer {
                 throw new CardNotFoundException();
 
             cardPlayed.PlayCard();
-            ServerSendData.SendCreateCard(_playerOnTurn == 0 ? 1 : 0, cardPlayed.CardId, cardPlayed.ServerId, CardPlace.ENEMY_BOARD, boardIndex);
+
+            ServerSendData.SendCreateCard(
+                _playerOnTurn == 0 ? 1 : 0, 
+                cardPlayed.CardId, 
+                cardPlayed.ServerId, 
+                CardPlace.ENEMY_BOARD, 
+                boardIndex
+            );
+
+            SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].ManaRemaining - cardPlayed.Mana);
+            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], _playerOnTurn == 0 ? CardsOnHand1 : CardsOnHand2);
+
+            if (PlayerList[_playerOnTurn].ManaRemaining < 0)
+                throw new IllegalGameEventException("Carta jogada sem ter mana suficiente! Jogador Index: " + _playerOnTurn);
+
         }
 
         public static void TurnEnded(long index) {
@@ -66,8 +80,14 @@ namespace GameServer {
 
             Console.WriteLine("Starting Player " + _playerOnTurn + " turn.");
 
+            SetTotalMana(_playerOnTurn, (PlayerList[_playerOnTurn].Mana + 1));
+            SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].Mana);
+
             ServerSendData.SendSetTurn(0, _playerOnTurn == 0 ? 1 : 0);
             ServerSendData.SendSetTurn(1, _playerOnTurn == 0 ? 0 : 1);
+
+            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], _playerOnTurn == 0 ? CardsOnHand1 : CardsOnHand2);
+
         }
 
         public static void DrawCardTo(long index, long qtd) {
@@ -85,7 +105,8 @@ namespace GameServer {
                     CardsOnHand1.Add(toDraw);
                     toDraw.ChangePlace(CardPlace.HAND);
                 }
-            } else {
+            }
+            else {
                 if (_cardsOnDeck2.Count == 0)
                     return;
 
@@ -97,6 +118,19 @@ namespace GameServer {
                     toDraw.ChangePlace(CardPlace.HAND);
                 }
             }
+
+            if(index == _playerOnTurn)
+                AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], _playerOnTurn == 0 ? CardsOnHand1 : CardsOnHand2);
+        }
+
+        private static void SetTotalMana(int index, int mana) {
+            ServerSendData.SendSetTotalMana(index, mana);
+            PlayerList[index].Mana = mana;
+        }
+
+        private static void SetAvailableMana(int index, int mana) {
+            ServerSendData.SendSetAvailableMana(index, mana);
+            PlayerList[index].ManaRemaining = mana;
         }
 
         #endregion
@@ -109,8 +143,6 @@ namespace GameServer {
             _playerOnTurn = 0;
             ServerSendData.SendSetTurn(0, 1);
             ServerSendData.SendSetTurn(1, 0);
-
-            
 
             //FIXME: Temp code for testing purposes
             _cardsOnDeck1 = new List<Card> {
@@ -129,6 +161,11 @@ namespace GameServer {
 
             DrawCardTo(0, 3);
             DrawCardTo(1, 4);
+            SetTotalMana(0, 1);
+            SetAvailableMana(0, 1);
+            SetTotalMana(1, 0);
+
+            AvailablePlaysVerifier.CheckHandPlays(0, PlayerList[0], CardsOnHand1);
         }
 
         #endregion

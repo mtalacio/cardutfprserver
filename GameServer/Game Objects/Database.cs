@@ -26,8 +26,9 @@ namespace GameServer.Game_Objects {
                 behaviourModel.Attack, 
                 behaviourModel.Mana, 
                 behaviourModel.GetBattlecry(), 
-                behaviourModel.GetDeathrattle()
-                );
+                behaviourModel.GetDeathrattle(),
+                behaviourModel.GetCanBePlayed()
+            );
 
             toInstantiate.InstantiateCard(serverId, ownerIndex);
 

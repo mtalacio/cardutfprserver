@@ -6,6 +6,7 @@ namespace GameServer.Game_Objects {
 
     internal delegate void Battlecry(Card cardBase);
     internal delegate void Deathrattle(Card cardBase);
+    internal delegate bool CanBePlayed(Card cardBase);
 
     internal class Card {
 
@@ -23,10 +24,11 @@ namespace GameServer.Game_Objects {
         public readonly int Attack;
         public readonly int Mana;
 
-        private readonly List<Battlecry> _battlecries = new List<Battlecry>();
-        private readonly List<Deathrattle> _deathrattles = new List<Deathrattle>();
+        private readonly Battlecry _battlecries;
+        private readonly Deathrattle _deathrattles;
+        private readonly List<CanBePlayed> _canBePlayeds = new List<CanBePlayed>();
 
-        public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle) {
+        public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, CanBePlayed canPlayChecks) {
             Place = CardPlace.DECK;
             CardId = cardId;
 
@@ -39,10 +41,12 @@ namespace GameServer.Game_Objects {
             CurrentMana = mana;
 
             if(baseBattlecry != null)
-                _battlecries.Add(baseBattlecry);
+                _battlecries += baseBattlecry;
 
             if(baseDeathrattle != null)
-                _deathrattles.Add(baseDeathrattle);
+                _deathrattles += baseDeathrattle;
+
+            _canBePlayeds.Add(canPlayChecks);
         }
 
         public virtual Card CloneCard() {
@@ -71,15 +75,23 @@ namespace GameServer.Game_Objects {
             CurrentMana = newMana;
         }
 
+        public bool CanPlay() {
+            foreach (CanBePlayed canPlay in _canBePlayeds) {
+                bool result = canPlay.Invoke(this);
+                if (!result)
+                    return false;
+            }
+
+            return true;
+        }
+
         public void PlayCard() {
             ChangePlace(CardPlace.BOARD);
             CallBattlecries();
         }
 
         private void CallBattlecries() {
-            foreach (Battlecry battlecry in _battlecries) {
-                battlecry.Invoke(this);
-            }
+            _battlecries?.Invoke(this);
         }
 
     }

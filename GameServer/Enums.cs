@@ -8,7 +8,10 @@ namespace GameServer {
             SSendInGame,
             SLoginResponse,
             CreateCard,
-            SetTurn
+            SetTurn,
+            SetTotalMana,
+            SetAvailableMana,
+            SetCanPlayCard
         }
 
         public enum ClientPackets {

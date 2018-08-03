@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AvailablePlaysVerifier.cs" />
     <Compile Include="Card Behaviours\CardModel.cs" />
     <Compile Include="Card Behaviours\Card_Matheus.cs" />
     <Compile Include="Card Behaviours\Card_Talacio.cs" />

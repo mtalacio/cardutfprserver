@@ -28,5 +28,9 @@ namespace GameServer.Card_Behaviours {
         public virtual Deathrattle GetDeathrattle() {
             return null;
         }
+
+        public virtual CanBePlayed GetCanBePlayed() {
+            return card => true;
+        }
     }
 }

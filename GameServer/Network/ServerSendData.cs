@@ -43,5 +43,36 @@ namespace GameServer.Network {
             NetworkSocket.SendDataTo(index, buffer.ToArray());
         }
 
+        public static void SendSetTotalMana(long index, long mana) {
+            Console.WriteLine("Sending SendSetTotalMana value = " + mana + " to: " + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteLong((long)ServerPackets.SetTotalMana);
+
+            buffer.WriteLong(mana);
+
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
+        }
+
+        public static void SendSetAvailableMana(long index, long mana) {
+            Console.WriteLine("Sending SetAvailableMana value = " + mana + " to: " + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteLong((long)ServerPackets.SetAvailableMana);
+
+            buffer.WriteLong(mana);
+
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
+        }
+
+        public static void SendSetCanPlayCard(long index, long sId, long can) {
+            Console.WriteLine("Sending SetCanPlay Card SID = " + sId + " value = " + can + " to: " + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteLong((long)ServerPackets.SetCanPlayCard);
+
+            buffer.WriteLong(sId);
+            buffer.WriteLong(can);
+
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
+        }
+
     }
 }
