@@ -8,19 +8,18 @@ namespace GameServer {
 
         public static void CheckHandPlays(int playerOnTurn, Player player, List<Card> cards) {
             foreach (Card card in cards) {
-
                 if (card.Mana > player.ManaRemaining) {
                     ServerSendData.SendSetCanPlayCard(playerOnTurn, card.ServerId, 0);
                     continue;
                 }
-
                 ServerSendData.SendSetCanPlayCard(playerOnTurn, card.ServerId, card.CanPlay() ? 1 : 0);
             }
         }
 
-        public static void CheckBoardPlays(List<Card> cards) {
-
+        public static void CheckBoardPlays(int playerOnTurn, Player player, List<Card> cards) {
+            foreach (Card card in cards) {
+                ServerSendData.SendSetCanAttack(playerOnTurn, card.ServerId, card.CanAttack() ? 1 : 0);
+            }
         }
-
     }
 }

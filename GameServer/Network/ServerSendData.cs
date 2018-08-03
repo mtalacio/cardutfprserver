@@ -74,5 +74,16 @@ namespace GameServer.Network {
             NetworkSocket.SendDataTo(index, buffer.ToArray());
         }
 
+        public static void SendSetCanAttack(long index, long sId, long can) {
+            Console.WriteLine("Sending SetCanAttack Card SID = " + sId + " value = " + can + " to: " + index);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.WriteLong((long)ServerPackets.SetCanAttack);
+
+            buffer.WriteLong(sId);
+            buffer.WriteLong(can);
+
+            NetworkSocket.SendDataTo(index, buffer.ToArray());
+        }
+
     }
 }

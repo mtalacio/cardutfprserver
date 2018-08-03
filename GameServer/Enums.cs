@@ -11,7 +11,8 @@ namespace GameServer {
             SetTurn,
             SetTotalMana,
             SetAvailableMana,
-            SetCanPlayCard
+            SetCanPlayCard,
+            SetCanAttack
         }
 
         public enum ClientPackets {

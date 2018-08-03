@@ -28,6 +28,8 @@ namespace GameServer.Game_Objects {
         private readonly Deathrattle _deathrattles;
         private readonly List<CanBePlayed> _canBePlayeds = new List<CanBePlayed>();
 
+        public bool JustPlayed { get; private set; }
+
         public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, CanBePlayed canPlayChecks) {
             Place = CardPlace.DECK;
             CardId = cardId;
@@ -85,13 +87,26 @@ namespace GameServer.Game_Objects {
             return true;
         }
 
+        public bool CanAttack() {
+            return !JustPlayed;
+        }
+
+        public void WakeUp() {
+            JustPlayed = false;
+        }
+
         public void PlayCard() {
             ChangePlace(CardPlace.BOARD);
+            JustPlayed = true;
             CallBattlecries();
         }
 
         private void CallBattlecries() {
             _battlecries?.Invoke(this);
+        }
+
+        private void CallDeathrattles() {
+            _deathrattles?.Invoke(this);
         }
 
     }
