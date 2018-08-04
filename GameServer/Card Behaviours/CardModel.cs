@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using GameServer.Game_Objects;
 
 namespace GameServer.Card_Behaviours {
@@ -12,6 +8,8 @@ namespace GameServer.Card_Behaviours {
         public int Health { get; }
         public int Attack { get; }
         public int Mana { get; }
+
+        public Dictionary<Enums.PlayRequirement, bool> PlayRequirements { get; protected set; }
 
         protected CardModel(int id, int health, int attack, int mana) {
             Id = id;
@@ -27,10 +25,6 @@ namespace GameServer.Card_Behaviours {
 
         public virtual Deathrattle GetDeathrattle() {
             return null;
-        }
-
-        public virtual CanBePlayed GetCanBePlayed() {
-            return card => true;
         }
     }
 }

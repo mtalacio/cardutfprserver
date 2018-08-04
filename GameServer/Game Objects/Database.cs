@@ -27,7 +27,7 @@ namespace GameServer.Game_Objects {
                 behaviourModel.Mana, 
                 behaviourModel.GetBattlecry(), 
                 behaviourModel.GetDeathrattle(),
-                behaviourModel.GetCanBePlayed()
+                behaviourModel.PlayRequirements
             );
 
             toInstantiate.InstantiateCard(serverId, ownerIndex);

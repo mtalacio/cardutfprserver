@@ -18,6 +18,10 @@ namespace GameServer {
 
         public static void CheckBoardPlays(int playerOnTurn, Player player, List<Card> cards) {
             foreach (Card card in cards) {
+
+                
+
+
                 ServerSendData.SendSetCanAttack(playerOnTurn, card.ServerId, card.CanAttack() ? 1 : 0);
             }
         }

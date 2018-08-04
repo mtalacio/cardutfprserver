@@ -10,6 +10,8 @@ namespace GameServer.Game_Objects {
 
     internal class Card {
 
+        public static int LastServerId { get; }
+
         public int ServerId { get; private set; }
         public CardPlace Place { get; private set; }
         public int OwnerIndex { get; private set; }
@@ -26,11 +28,11 @@ namespace GameServer.Game_Objects {
 
         private readonly Battlecry _battlecries;
         private readonly Deathrattle _deathrattles;
-        private readonly List<CanBePlayed> _canBePlayeds = new List<CanBePlayed>();
+        private readonly Dictionary<PlayRequirement, bool> _playReqs;
 
         public bool JustPlayed { get; private set; }
 
-        public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, CanBePlayed canPlayChecks) {
+        public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, Dictionary<PlayRequirement, bool> playReqs) {
             Place = CardPlace.DECK;
             CardId = cardId;
 
@@ -48,11 +50,11 @@ namespace GameServer.Game_Objects {
             if(baseDeathrattle != null)
                 _deathrattles += baseDeathrattle;
 
-            _canBePlayeds.Add(canPlayChecks);
+            _playReqs = playReqs;
         }
 
-        public virtual Card CloneCard() {
-            return null;
+        public Card CloneCard() {
+            return new Card(CardId, CurrentHealth, CurrentAttack, CurrentMana, _battlecries, _deathrattles, _playReqs);
         }
 
         public void InstantiateCard(int serverId, int ownerIndex) {
@@ -77,18 +79,8 @@ namespace GameServer.Game_Objects {
             CurrentMana = newMana;
         }
 
-        public bool CanPlay() {
-            foreach (CanBePlayed canPlay in _canBePlayeds) {
-                bool result = canPlay.Invoke(this);
-                if (!result)
-                    return false;
-            }
-
-            return true;
-        }
-
         public bool CanAttack() {
-            return !JustPlayed;
+            return !JustPlayed && CurrentAttack > 0;
         }
 
         public void WakeUp() {
@@ -105,8 +97,19 @@ namespace GameServer.Game_Objects {
             _battlecries?.Invoke(this);
         }
 
+        private void Die() {
+            Console.WriteLine("Card SID = " + ServerId + " died");
+            CallDeathrattles();
+        }
+
         private void CallDeathrattles() {
             _deathrattles?.Invoke(this);
+        }
+
+        public void Damage(int value) {
+            CurrentHealth -= value;
+            if(CurrentHealth <= 0)
+                Die();
         }
 
     }

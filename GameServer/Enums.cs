@@ -36,5 +36,10 @@ namespace GameServer {
             ENEMY_BOARD,
             DECK
         }
+
+        public enum PlayRequirement {
+            MINIONS_ON_BOARD,
+            ENEMIES_ON_BOARD
+        }
     }
 }
