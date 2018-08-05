@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
 
 namespace GameServer.Network {
@@ -42,7 +43,7 @@ namespace GameServer.Network {
                 MyStream.BeginRead(_readBuff, 0, Socket1.ReceiveBufferSize, OnReceiveData, null);
 
             }
-            catch (Exception e) {
+            catch (IOException e) {
                 CloseConnection();
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);

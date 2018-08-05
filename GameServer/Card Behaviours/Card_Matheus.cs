@@ -7,7 +7,7 @@ namespace GameServer.Card_Behaviours {
     internal class MatheusCard : CardModel {
 
         public MatheusCard(int id, int health, int attack, int mana) : base(id, health, attack, mana) {
-            PlayRequirements = new Dictionary<Enums.PlayRequirement, bool> {
+            PlayRequirements = new Dictionary<PlayRequirement, bool> {
                 {PlayRequirement.MINIONS_ON_BOARD, false},
                 {PlayRequirement.ENEMIES_ON_BOARD, false}
             };

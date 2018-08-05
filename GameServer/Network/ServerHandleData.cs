@@ -121,7 +121,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_CardPlayed(long index, byte[] data) {
-            Console.WriteLine("Received: CardPlayed from:" + index);
+            Console.WriteLine("Received CardPlayed from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -135,7 +135,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_TurnEnded(long index, byte[] data) {
-            Console.WriteLine("Received: CardPlayed from:" + index);
+            Console.WriteLine("Received TurnEnded from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -144,7 +144,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_PlayerRead(long index, byte[] data) {
-            Console.WriteLine("Received: Player Ready from: " + index);
+            Console.WriteLine("Received PlayerReady from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -153,7 +153,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_DrawCard(long index, byte[] data) {
-            Console.WriteLine("Received: Draw Card from: " + index);
+            Console.WriteLine("Received DrawCard from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();

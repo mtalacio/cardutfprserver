@@ -30,7 +30,7 @@ namespace GameServer.Game_Objects {
                 behaviourModel.PlayRequirements
             );
 
-            toInstantiate.InstantiateCard(serverId, ownerIndex);
+            toInstantiate.AssignCard(ownerIndex);
 
             return toInstantiate;
         }

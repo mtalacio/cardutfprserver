@@ -11,7 +11,7 @@ namespace GameServer.Game_Objects {
 
     internal class Card {
 
-        public static int LastServerId { get; }
+        private static int _nextServerId;
 
         public int ServerId { get; private set; }
         public CardPlace Place { get; private set; }
@@ -58,8 +58,9 @@ namespace GameServer.Game_Objects {
             return new Card(CardId, CurrentHealth, CurrentAttack, CurrentMana, _battlecries, _deathrattles, _playReqs);
         }
 
-        public void InstantiateCard(int serverId, int ownerIndex) {
-            ServerId = serverId;
+        public void AssignCard(int ownerIndex) {
+            ServerId = _nextServerId;
+            _nextServerId++;
             OwnerIndex = ownerIndex;
         }
 

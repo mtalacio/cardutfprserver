@@ -13,7 +13,6 @@ namespace GameServer.Card_Behaviours {
 
         protected CardModel(int id, int health, int attack, int mana) {
             Id = id;
-
             Health = health;
             Attack = attack;
             Mana = mana;

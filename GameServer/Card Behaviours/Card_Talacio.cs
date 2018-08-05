@@ -7,6 +7,11 @@ using GameServer.Game_Objects;
 
 namespace GameServer.Card_Behaviours {
     internal class TalacioCard : CardModel {
-        public TalacioCard(int id, int health, int attack, int mana) : base(id, health, attack, mana) { }
+        public TalacioCard(int id, int health, int attack, int mana) : base(id, health, attack, mana) {
+            PlayRequirements = new Dictionary<Enums.PlayRequirement, bool> {
+                {Enums.PlayRequirement.MINIONS_ON_BOARD, false},
+                {Enums.PlayRequirement.ENEMIES_ON_BOARD, false}
+            };
+        }
     }
 }

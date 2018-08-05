@@ -34,7 +34,7 @@ namespace GameServer.Network {
         }
 
         public static void SendSetTurn(long index, long your) {
-            Console.WriteLine("Sending SendSetTurn" + your + " to: " + index);
+            Console.WriteLine("Sending SendSetTurn value = " + your + " to: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteLong((long)ServerPackets.SetTurn);
 
