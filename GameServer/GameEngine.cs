@@ -18,9 +18,9 @@ namespace GameServer {
             PlayerList.Add(player);
         }
 
-        private static readonly List<Card>[] CardsOnBoard = {new List<Card>(), new List<Card>()};
-        private static readonly List<Card>[] CardsOnHand = { new List<Card>(), new List<Card>() };
-        private static readonly List<Card>[] CardsOnDeck = { new List<Card>(), new List<Card>() };
+        internal static List<Card>[] CardsOnBoard { get; private set; } = {new List<Card>(), new List<Card>()};
+        internal static List<Card>[] CardsOnHand { get; private set; }= { new List<Card>(), new List<Card>() };
+        internal static List<Card>[] CardsOnDeck { get; private set; } = { new List<Card>(), new List<Card>() };
 
         #region Events
 

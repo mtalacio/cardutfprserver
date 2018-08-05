@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GameServer.Utils;
 using static GameServer.Enums;
 
 namespace GameServer.Game_Objects {
@@ -110,6 +111,13 @@ namespace GameServer.Game_Objects {
             CurrentHealth -= value;
             if(CurrentHealth <= 0)
                 Die();
+        }
+
+        public bool CheckRequirement(PlayRequirement req) {
+            if (_playReqs.TryGetValue(req, out bool needReq))
+                return needReq;
+            
+            throw new RequirementException("Requerimento não encontrado.");
         }
 
     }

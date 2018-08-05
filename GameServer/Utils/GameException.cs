@@ -33,4 +33,8 @@ namespace GameServer.Utils {
     public class CardNotFoundException : Exception {
         public CardNotFoundException() : base("Carta não encontrada no jogo") { }
     }
+
+    public class RequirementException : Exception {
+        public RequirementException(string message) : base(message) { }
+    }
 }
