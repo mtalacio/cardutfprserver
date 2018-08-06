@@ -37,7 +37,7 @@ namespace GameServer.Game_Objects {
         private bool _justAttacked;
         
 
-        public Card(int cardId, int healthPoints, int attackPoints, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, Dictionary<PlayRequirement, bool> playReqs) {
+        public Card(int cardId, int healthPoints, int attackPoints, int mana, bool isTaunt,Battlecry baseBattlecry, Deathrattle baseDeathrattle, Dictionary<PlayRequirement, bool> playReqs) {
             Place = CardPlace.DECK;
             CardId = cardId;
 
@@ -56,10 +56,12 @@ namespace GameServer.Game_Objects {
                 _deathrattles += baseDeathrattle;
 
             _playReqs = playReqs;
+
+            IsTaunt = isTaunt;
         }
 
         public Card CloneCard() {
-            return new Card(CardId, CurrentHealthPoints, CurrentAttackPoints, CurrentMana, _battlecries, _deathrattles, _playReqs);
+            return new Card(CardId, CurrentHealthPoints, CurrentAttackPoints, CurrentMana, IsTaunt,_battlecries, _deathrattles, _playReqs);
         }
 
         public void AssignCard(int ownerIndex) {

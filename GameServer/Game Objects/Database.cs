@@ -24,7 +24,8 @@ namespace GameServer.Game_Objects {
                 behaviourModel.Id, 
                 behaviourModel.Health, 
                 behaviourModel.Attack, 
-                behaviourModel.Mana, 
+                behaviourModel.Mana,
+                behaviourModel.IsTaunt,
                 behaviourModel.GetBattlecry(), 
                 behaviourModel.GetDeathrattle(),
                 behaviourModel.PlayRequirements
