@@ -9,13 +9,16 @@ namespace GameServer.Card_Behaviours {
         public int Attack { get; }
         public int Mana { get; }
 
+        public bool IsTaunt { get; }
+
         public Dictionary<Enums.PlayRequirement, bool> PlayRequirements { get; protected set; }
 
-        protected CardModel(int id, int health, int attack, int mana) {
+        protected CardModel(int id, int health, int attack, int mana, bool isTaunt) {
             Id = id;
             Health = health;
             Attack = attack;
             Mana = mana;
+            IsTaunt = isTaunt;
         }
 
         public virtual Battlecry GetBattlecry() {

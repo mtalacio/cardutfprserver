@@ -9,8 +9,8 @@ namespace GameServer.Game_Objects {
 
         public static void InitializeCardDatabase() {
             Console.WriteLine("Initializing Card Database");
-            ModelDatabase.Add(new MatheusCard(0, 10, 2, 1));
-            ModelDatabase.Add(new TalacioCard(1, 2, 10, 2));
+            ModelDatabase.Add(new MatheusCard(0, 10, 2, 1, false));
+            ModelDatabase.Add(new TalacioCard(1, 5, 1, 2, true));
             Console.WriteLine("Card Database Initialized");
         }
 

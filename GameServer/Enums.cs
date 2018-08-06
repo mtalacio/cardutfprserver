@@ -2,26 +2,31 @@
 namespace GameServer {
     public static class Enums {
         public enum ServerPackets {
-            SWelcome = 1,
-            SMessage,
-            SKick,
-            SSendInGame,
-            SLoginResponse,
-            CreateCard,
-            SetTurn,
-            SetTotalMana,
-            SetAvailableMana,
-            SetCanPlayCard,
-            SetCanAttack
+            WELCOME = 1,
+            MESSAGE,
+            KICK,
+            SEND_IN_GAME,
+            LOGIN_RESPONSE,
+            CREATE_CARD,
+            SET_TURN,
+            SET_TOTAL_MANA,
+            SET_AVAILABLE_MANA,
+            SET_CAN_PLAY_CARD,
+            SET_CAN_ATTACK,
+            START_SELECT_TARGET,
+            SET_CAN_BE_TARGET,
+            END_SELECT_TARGET
         }
 
         public enum ClientPackets {
-            CNewAccount = 1,
-            CLogin,
-            PlayCard,
-            EndTurn,
-            PlayerReady,
-            DrawCards
+            NEW_ACCOUNT = 1,
+            LOGIN,
+            PLAY_CARD,
+            END_TURN,
+            PLAYER_READY,
+            DRAW_CARDS,
+            REQUEST_ATTACK_EVENT,
+            TARGET_SELECT
         }
 
         public enum LoginResponse {
@@ -43,3 +48,4 @@ namespace GameServer {
         }
     }
 }
+

@@ -6,34 +6,56 @@ using static GameServer.Enums;
 namespace GameServer {
     internal static class AvailablePlaysVerifier {
 
-        public static void CheckHandPlays(int playerOnTurn, Player player, List<Card> cards) {
+        public static void CheckHandPlays(int playerIndex, Player player, List<Card> cards) {
             foreach (Card card in cards) {
                 if (card.Mana > player.ManaRemaining) {
-                    ServerSendData.SendSetCanPlayCard(playerOnTurn, card.ServerId, 0);
+                    ServerSendData.SendSetCanPlayCard(playerIndex, card.ServerId, 0);
                     continue;
                 }
 
                 if (card.CheckRequirement(PlayRequirement.MINIONS_ON_BOARD)) {
-                    if (GameEngine.CardsOnBoard[playerOnTurn].Count == 0) {
-                        ServerSendData.SendSetCanPlayCard(playerOnTurn, card.ServerId, 0);
+                    if (GameEngine.CardsOnBoard[playerIndex].Count == 0) {
+                        ServerSendData.SendSetCanPlayCard(playerIndex, card.ServerId, 0);
                         continue;
                     }
                 }
 
                 if (card.CheckRequirement(PlayRequirement.ENEMIES_ON_BOARD)) {
-                    if (GameEngine.CardsOnBoard[playerOnTurn == 0 ? 1 : 0].Count == 0) {
-                        ServerSendData.SendSetCanPlayCard(playerOnTurn, card.ServerId, 0);
+                    if (GameEngine.CardsOnBoard[playerIndex == 0 ? 1 : 0].Count == 0) {
+                        ServerSendData.SendSetCanPlayCard(playerIndex, card.ServerId, 0);
                         continue;
                     }
                 }
 
-                ServerSendData.SendSetCanPlayCard(playerOnTurn, card.ServerId, 1);
+                ServerSendData.SendSetCanPlayCard(playerIndex, card.ServerId, 1);
             }
         }
 
-        public static void CheckBoardPlays(int playerOnTurn, Player player, List<Card> cards) {
+        public static void CheckBoardPlays(int playerIndex, List<Card> cards) {
             foreach (Card card in cards) {
-                ServerSendData.SendSetCanAttack(playerOnTurn, card.ServerId, card.CanAttack() ? 1 : 0);
+                ServerSendData.SendSetCanAttack(playerIndex, card.ServerId, card.CanAttack() ? 1 : 0);
+            }
+        }
+
+        public static void CheckAttackTargets(int playerIndex, List<Card> cards) {
+            // Check for taunts
+            bool hasTaunt = false;
+            foreach (Card card in cards) {
+                if (!card.IsTaunt) continue;
+
+                hasTaunt = true;
+                break;
+            }
+
+            if (hasTaunt) {
+                foreach (Card card in cards) {
+                    ServerSendData.SendSetCanTarget(playerIndex, card.ServerId, card.IsTaunt ? 1 : 0);
+                }
+            }
+            else {
+                foreach (Card card in cards) {
+                    ServerSendData.SendSetCanTarget(playerIndex, card.ServerId, 1);
+                }
             }
         }
     }

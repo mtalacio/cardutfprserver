@@ -8,7 +8,7 @@ namespace GameServer.Network {
     internal class NetworkSocket {
         private TcpListener _serverSocket;
         public static readonly NetworkSocket Instance = new NetworkSocket();
-        private static readonly Client[] Clients = new Client[Constants.MAX_PLAYERS]; // Classe criada no tutorial
+        private static readonly Client[] Clients = new Client[Constants.MAX_PLAYERS];
 
 
         public void ServerStart() {
@@ -29,15 +29,15 @@ namespace GameServer.Network {
             _serverSocket.BeginAcceptTcpClient(OnClientConnect, null);
 
             for (int i = 0; i < 2; i++) {
-                if (Clients[i].Socket1 == null) {
-                    Clients[i].Socket1 = client;
-                    Clients[i].Index = i;
-                    Clients[i].Ip = client.Client.RemoteEndPoint.ToString();
-                    Clients[i].Start();
-                    Console.WriteLine("Incoming Connection from: " + Clients[i].Ip + "|| Index: " + i);
-                    SendWelcomeMessage(i);
-                    return;
-                }
+                if (Clients[i].Socket1 != null) continue;
+
+                Clients[i].Socket1 = client;
+                Clients[i].Index = i;
+                Clients[i].Ip = client.Client.RemoteEndPoint.ToString();
+                Clients[i].Start();
+                Console.WriteLine("Incoming Connection from: " + Clients[i].Ip + "|| Index: " + i);
+                SendWelcomeMessage(i);
+                return;
             }
         }
 
@@ -50,7 +50,7 @@ namespace GameServer.Network {
 
         private static void SendWelcomeMessage(long index) {
             ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteLong((long)ServerPackets.SWelcome);
+            buffer.WriteLong((long)ServerPackets.WELCOME);
             Console.WriteLine("Sending WelcomeMessage to index: " + index);
 
             buffer.WriteString("Conectado ao servidor!");

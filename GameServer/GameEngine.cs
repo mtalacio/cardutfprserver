@@ -8,6 +8,9 @@ using static GameServer.Enums;
 namespace GameServer {
     public static class GameEngine {
 
+        public delegate void OnCardSelected(long sId);
+        public static OnCardSelected OnCardSelectedCallback;
+
         private static readonly List<Player> PlayerList = new List<Player>();
         public static void AddPlayer(Player player) {
             if(PlayerList.Count > Constants.MAX_PLAYERS) {
@@ -76,7 +79,7 @@ namespace GameServer {
             ServerSendData.SendSetTurn(1, _playerOnTurn == 0 ? 0 : 1);
 
             AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
-            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnBoard[_playerOnTurn]);
+            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
         }
 
         public static void DrawCardTo(long index, long qtd) {
@@ -110,6 +113,20 @@ namespace GameServer {
             }
         }
 
+        public static void StartAttackEvent(long playerIndex, long sId) {
+            if(playerIndex != _playerOnTurn) throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
+
+            Card attacker = CardsOnBoard[_playerOnTurn].Find(x => x.ServerId == sId);
+            if(attacker == null) throw new CardNotFoundException();
+            if(!attacker.CanAttack()) throw new IllegalGameEventException("Carta que não pode atacar tentou começar ataque.");
+
+            ServerSendData.SendStartSelectTarget(_playerOnTurn);
+            AvailablePlaysVerifier.CheckAttackTargets(_playerOnTurn, CardsOnBoard[_playerOnTurn == 0 ? 1 : 0]);
+
+            _cardSelectCaller = attacker;
+            OnCardSelectedCallback += StartAttackResponse;
+        }
+
         #endregion
 
         #region Game State
@@ -140,6 +157,30 @@ namespace GameServer {
             SetTotalMana(1, 0);
 
             AvailablePlaysVerifier.CheckHandPlays(0, PlayerList[0], CardsOnHand[0]);
+        }
+
+        #endregion
+
+        #region Card Select Responses
+
+        private static Card _cardSelectCaller;
+
+        private static void StartAttackResponse(long sId) {
+
+            ServerSendData.SendEndSelectTarget(_playerOnTurn, 1);
+
+            Card attacked = CardsOnBoard[_playerOnTurn == 0 ? 1 : 0].Find(x => x.ServerId == sId);
+            if(attacked == null) throw new CardNotFoundException();
+
+            _cardSelectCaller.Attack(attacked);
+
+            // TODO: Implement card values update
+
+            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
+            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
+
+            OnCardSelectedCallback -= StartAttackResponse;
+            _cardSelectCaller = null;
         }
 
         #endregion

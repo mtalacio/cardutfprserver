@@ -17,32 +17,36 @@ namespace GameServer.Game_Objects {
         public CardPlace Place { get; private set; }
         public int OwnerIndex { get; private set; }
 
-        public int CurrentHealth { get; private set; }
-        public int CurrentAttack { get; private set; }
+        public int CurrentHealthPoints { get; private set; }
+        public int CurrentAttackPoints { get; private set; }
         public int CurrentMana { get; private set; }
 
         public int CardId { get; }
 
-        public readonly int Health;
-        public readonly int Attack;
+        public readonly int HealthPoints;
+        public readonly int AttackPoints;
         public readonly int Mana;
+
+        public readonly bool IsTaunt;
 
         private readonly Battlecry _battlecries;
         private readonly Deathrattle _deathrattles;
         private readonly Dictionary<PlayRequirement, bool> _playReqs;
 
-        public bool JustPlayed { get; private set; }
+        private bool _justPlayed;
+        private bool _justAttacked;
+        
 
-        public Card(int cardId, int health, int attack, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, Dictionary<PlayRequirement, bool> playReqs) {
+        public Card(int cardId, int healthPoints, int attackPoints, int mana, Battlecry baseBattlecry, Deathrattle baseDeathrattle, Dictionary<PlayRequirement, bool> playReqs) {
             Place = CardPlace.DECK;
             CardId = cardId;
 
-            Health = health;
-            Attack = attack;
+            HealthPoints = healthPoints;
+            AttackPoints = attackPoints;
             Mana = mana;
 
-            CurrentHealth = health;
-            CurrentAttack = attack;
+            CurrentHealthPoints = healthPoints;
+            CurrentAttackPoints = attackPoints;
             CurrentMana = mana;
 
             if(baseBattlecry != null)
@@ -55,7 +59,7 @@ namespace GameServer.Game_Objects {
         }
 
         public Card CloneCard() {
-            return new Card(CardId, CurrentHealth, CurrentAttack, CurrentMana, _battlecries, _deathrattles, _playReqs);
+            return new Card(CardId, CurrentHealthPoints, CurrentAttackPoints, CurrentMana, _battlecries, _deathrattles, _playReqs);
         }
 
         public void AssignCard(int ownerIndex) {
@@ -70,11 +74,11 @@ namespace GameServer.Game_Objects {
         }
 
         public void ChangeHealth(int newHealth) {
-            CurrentHealth = newHealth;
+            CurrentHealthPoints = newHealth;
         }
 
         public void ChangeAttack(int newAttack) {
-            CurrentAttack = newAttack;
+            CurrentAttackPoints = newAttack;
         }
 
         public void ChangeMana(int newMana) {
@@ -82,16 +86,17 @@ namespace GameServer.Game_Objects {
         }
 
         public bool CanAttack() {
-            return !JustPlayed && CurrentAttack > 0;
+            return !_justPlayed && CurrentAttackPoints > 0 && !_justAttacked;
         }
 
         public void WakeUp() {
-            JustPlayed = false;
+            _justPlayed = false;
+            _justAttacked = false;
         }
 
         public void PlayCard() {
             ChangePlace(CardPlace.BOARD);
-            JustPlayed = true;
+            _justPlayed = true;
             CallBattlecries();
         }
 
@@ -100,7 +105,7 @@ namespace GameServer.Game_Objects {
         }
 
         private void Die() {
-            Console.WriteLine("Card SID = " + ServerId + " died");
+            Console.WriteLine(">> Card SID = " + ServerId + " died");
             CallDeathrattles();
         }
 
@@ -108,9 +113,17 @@ namespace GameServer.Game_Objects {
             _deathrattles?.Invoke(this);
         }
 
+        public void Attack(Card card) {
+            Console.WriteLine(">> Card SID: " + ServerId + " attacking SID = " + card.ServerId);
+            Damage(card.AttackPoints);
+            card.Damage(AttackPoints);
+            _justAttacked = true;
+        }
+
         public void Damage(int value) {
-            CurrentHealth -= value;
-            if(CurrentHealth <= 0)
+            Console.WriteLine(">> Card SID: " + ServerId + " taking damage value = " + value);
+            CurrentHealthPoints -= value;
+            if(CurrentHealthPoints <= 0)
                 Die();
         }
 
