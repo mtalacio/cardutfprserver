@@ -14,7 +14,7 @@ namespace GameServer.Game_Objects {
             Console.WriteLine("Card Database Initialized");
         }
 
-        public static Card GetCard(int cardId, int serverId, int ownerIndex) {
+        public static Card GetCard(int cardId, int ownerIndex) {
             CardModel behaviourModel = ModelDatabase.Find(x => x.Id == cardId);
             
             if(behaviourModel == null)

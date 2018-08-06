@@ -5,11 +5,10 @@ using static GameServer.Enums;
 
 namespace GameServer.Game_Objects {
 
-    internal delegate void Battlecry(Card cardBase);
-    internal delegate void Deathrattle(Card cardBase);
-    internal delegate bool CanBePlayed(Card cardBase);
+    public delegate void Battlecry(Card cardBase);
+    public delegate void Deathrattle(Card cardBase);
 
-    internal class Card {
+    public class Card {
 
         private static int _nextServerId;
 
@@ -71,7 +70,7 @@ namespace GameServer.Game_Objects {
         }
 
         public void ChangePlace(CardPlace place) {
-            Console.WriteLine("Changing card SID " + ServerId + " from: " + Place + " to: " + place);
+            Console.WriteLine(">> Changing card SID " + ServerId + " from: " + Place + " to: " + place);
             Place = place;
         }
 
@@ -113,18 +112,23 @@ namespace GameServer.Game_Objects {
 
         private void CallDeathrattles() {
             _deathrattles?.Invoke(this);
+            EndDeath();
+        }
+
+        private void EndDeath() {
+            GameEngine.AddToGraveyard(this);
         }
 
         public void Attack(Card card) {
             Console.WriteLine(">> Card SID: " + ServerId + " attacking SID = " + card.ServerId);
-            Damage(card.AttackPoints);
-            card.Damage(AttackPoints);
+            Damage(card.CurrentAttackPoints);
+            card.Damage(CurrentAttackPoints);
             _justAttacked = true;
         }
 
         public void Damage(int value) {
             Console.WriteLine(">> Card SID: " + ServerId + " taking damage value = " + value);
-            CurrentHealthPoints -= value;
+            ChangeHealth(CurrentHealthPoints - value);
             if(CurrentHealthPoints <= 0)
                 Die();
         }

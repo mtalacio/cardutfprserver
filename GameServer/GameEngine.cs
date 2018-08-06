@@ -21,9 +21,10 @@ namespace GameServer {
             PlayerList.Add(player);
         }
 
-        internal static List<Card>[] CardsOnBoard { get; private set; } = {new List<Card>(), new List<Card>()};
-        internal static List<Card>[] CardsOnHand { get; private set; }= { new List<Card>(), new List<Card>() };
-        internal static List<Card>[] CardsOnDeck { get; private set; } = { new List<Card>(), new List<Card>() };
+        public static List<Card>[] CardsOnBoard { get; } = {new List<Card>(), new List<Card>()};
+        public static List<Card>[] CardsOnHand { get; } = { new List<Card>(), new List<Card>() };
+        public static List<Card>[] CardsOnDeck { get; } = { new List<Card>(), new List<Card>() };
+        public static List<Card>[] Graveyard { get; } = { new List<Card>(), new List<Card>() };
 
         #region Events
 
@@ -54,6 +55,11 @@ namespace GameServer {
 
             if (PlayerList[_playerOnTurn].ManaRemaining < 0)
                 throw new IllegalGameEventException("Carta jogada sem ter mana suficiente! Jogador Index: " + _playerOnTurn);
+        }
+
+        public static void AddToGraveyard(Card card) {
+            Graveyard[card.OwnerIndex].Add(card);
+            card.ChangePlace(CardPlace.GRAVEYARD);
         }
 
         public static void TurnEnded(long index) {
@@ -114,11 +120,15 @@ namespace GameServer {
         }
 
         public static void StartAttackEvent(long playerIndex, long sId) {
-            if(playerIndex != _playerOnTurn) throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
+            if(playerIndex != _playerOnTurn)
+                throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
 
             Card attacker = CardsOnBoard[_playerOnTurn].Find(x => x.ServerId == sId);
-            if(attacker == null) throw new CardNotFoundException();
-            if(!attacker.CanAttack()) throw new IllegalGameEventException("Carta que não pode atacar tentou começar ataque.");
+            if(attacker == null)
+                throw new CardNotFoundException();
+
+            if(!attacker.CanAttack())
+                throw new IllegalGameEventException("Carta que não pode atacar tentou começar ataque.");
 
             ServerSendData.SendStartSelectTarget(_playerOnTurn);
             AvailablePlaysVerifier.CheckAttackTargets(_playerOnTurn, CardsOnBoard[_playerOnTurn == 0 ? 1 : 0]);
@@ -140,15 +150,15 @@ namespace GameServer {
 
             //FIXME: Temp code for testing purposes
 
-            CardsOnDeck[0].Add(Database.GetCard(0, 0, 0));
-            CardsOnDeck[0].Add(Database.GetCard(1, 1, 0));
-            CardsOnDeck[0].Add(Database.GetCard(0, 2, 0));
-            CardsOnDeck[0].Add(Database.GetCard(1, 3, 0));
+            CardsOnDeck[0].Add(Database.GetCard(0, 0));
+            CardsOnDeck[0].Add(Database.GetCard(1, 0));
+            CardsOnDeck[0].Add(Database.GetCard(0, 0));
+            CardsOnDeck[0].Add(Database.GetCard(1, 0));
 
-            CardsOnDeck[1].Add(Database.GetCard(0, 4, 1));
-            CardsOnDeck[1].Add(Database.GetCard(1, 5, 1));
-            CardsOnDeck[1].Add(Database.GetCard(0, 6, 1));
-            CardsOnDeck[1].Add(Database.GetCard(1, 7, 1));
+            CardsOnDeck[1].Add(Database.GetCard(0, 1));
+            CardsOnDeck[1].Add(Database.GetCard(1, 1));
+            CardsOnDeck[1].Add(Database.GetCard(0, 1));
+            CardsOnDeck[1].Add(Database.GetCard(1, 1));
 
             DrawCardTo(0, 3);
             DrawCardTo(1, 4);
@@ -170,7 +180,8 @@ namespace GameServer {
             ServerSendData.SendEndSelectTarget(_playerOnTurn, 1);
 
             Card attacked = CardsOnBoard[_playerOnTurn == 0 ? 1 : 0].Find(x => x.ServerId == sId);
-            if(attacked == null) throw new CardNotFoundException();
+            if(attacked == null)
+                throw new CardNotFoundException();
 
             _cardSelectCaller.Attack(attacked);
 

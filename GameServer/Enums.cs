@@ -39,7 +39,8 @@ namespace GameServer {
             HAND,
             BOARD,
             ENEMY_BOARD,
-            DECK
+            DECK,
+            GRAVEYARD
         }
 
         public enum PlayRequirement {
