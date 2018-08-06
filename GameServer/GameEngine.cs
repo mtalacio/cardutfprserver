@@ -59,6 +59,7 @@ namespace GameServer {
 
         public static void AddToGraveyard(Card card) {
             Graveyard[card.OwnerIndex].Add(card);
+            CardsOnBoard[card.OwnerIndex].Remove(card);
             card.ChangePlace(CardPlace.GRAVEYARD);
         }
 
@@ -117,6 +118,16 @@ namespace GameServer {
             foreach (Card card in CardsOnBoard[_playerOnTurn]) {
                 card.WakeUp();
             }
+        }
+
+        public static void UpdateCardHealthForAll(int sId, int newHealth) {
+            ServerSendData.SendUpdateCardHealth(0, sId, newHealth);
+            ServerSendData.SendUpdateCardHealth(1, sId, newHealth);
+        }
+
+        public static void DestroyCardForAll(int sId) {
+            ServerSendData.SendDestroyCard(0, sId);
+            ServerSendData.SendDestroyCard(1, sId);
         }
 
         public static void StartAttackEvent(long playerIndex, long sId) {

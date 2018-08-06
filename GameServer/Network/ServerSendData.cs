@@ -123,5 +123,29 @@ namespace GameServer.Network {
             }
         }
 
+        public static void SendUpdateCardHealth(long index, long sId, long newHealth) {
+            Console.WriteLine("Sending UpdateCardHealthForAll SID = " + sId + " value = " + newHealth + " to: " + index);
+
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteLong((long)ServerPackets.UPDATE_CARD_HEALTH);
+
+                buffer.WriteLong(sId);
+                buffer.WriteLong(newHealth);
+
+                NetworkSocket.SendDataTo(index, buffer.ToArray());
+            }
+        }
+
+        public static void SendDestroyCard(long index, long sId) {
+            Console.WriteLine("Sending DestroyCard SID = " + sId + " to: " + index);
+
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteLong((long)ServerPackets.DESTROY_CARD);
+
+                buffer.WriteLong(sId);
+
+                NetworkSocket.SendDataTo(index, buffer.ToArray());
+            }
+        }
     }
 }

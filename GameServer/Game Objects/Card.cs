@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GameServer.Network;
 using GameServer.Utils;
 using static GameServer.Enums;
 
@@ -116,6 +117,7 @@ namespace GameServer.Game_Objects {
         }
 
         private void EndDeath() {
+            GameEngine.DestroyCardForAll(ServerId);
             GameEngine.AddToGraveyard(this);
         }
 
@@ -129,6 +131,7 @@ namespace GameServer.Game_Objects {
         public void Damage(int value) {
             Console.WriteLine(">> Card SID: " + ServerId + " taking damage value = " + value);
             ChangeHealth(CurrentHealthPoints - value);
+            GameEngine.UpdateCardHealthForAll(ServerId, CurrentHealthPoints);
             if(CurrentHealthPoints <= 0)
                 Die();
         }
