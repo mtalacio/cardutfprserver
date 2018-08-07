@@ -24,7 +24,7 @@ namespace GameServer {
         public static List<Card>[] CardsOnBoard { get; } = {new List<Card>(), new List<Card>()};
         public static List<Card>[] CardsOnHand { get; } = { new List<Card>(), new List<Card>() };
         public static List<Card>[] CardsOnDeck { get; } = { new List<Card>(), new List<Card>() };
-        public static List<Card>[] Graveyard { get; } = { new List<Card>(), new List<Card>() };
+        public static List<Card>[] CardsOnGraveyard { get; } = { new List<Card>(), new List<Card>() };
 
         #region Events
 
@@ -42,15 +42,21 @@ namespace GameServer {
 
             cardPlayed.PlayCard();
 
-            ServerSendData.SendCreateCard(
-                _playerOnTurn == 0 ? 1 : 0, 
-                cardPlayed.CardId, 
-                cardPlayed.ServerId, 
-                CardPlace.ENEMY_BOARD, 
-                boardIndex
-            );
+            if(cardPlayed.IsSpell)
+                ServerSendData.SendDisplaySpell(
+                    _playerOnTurn == 0 ? 1 : 0, 
+                    cardPlayed.CardId
+                );
+            else
+                ServerSendData.SendCreateCard(
+                    _playerOnTurn == 0 ? 1 : 0, 
+                    cardPlayed.CardId, 
+                    cardPlayed.ServerId, 
+                    CardPlace.ENEMY_BOARD, 
+                    boardIndex
+                );
 
-            SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].ManaRemaining - cardPlayed.Mana);
+            SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].ManaRemaining - cardPlayed.CurrentMana);
             AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
 
             if (PlayerList[_playerOnTurn].ManaRemaining < 0)
@@ -58,16 +64,15 @@ namespace GameServer {
         }
 
         public static void AddToGraveyard(Card card) {
-            Graveyard[card.OwnerIndex].Add(card);
+            CardsOnGraveyard[card.OwnerIndex].Add(card);
             CardsOnBoard[card.OwnerIndex].Remove(card);
             card.ChangePlace(CardPlace.GRAVEYARD);
         }
 
         public static void TurnEnded(long index) {
 
-            if(index != _playerOnTurn) {
+            if(index != _playerOnTurn)
                 throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
-            }
 
             StartTurn();
         }
@@ -114,6 +119,10 @@ namespace GameServer {
             PlayerList[index].ManaRemaining = mana;
         }
 
+        public static void MathAvailableManaTo(int index, int qtd) {
+            SetAvailableMana(index, PlayerList[index].ManaRemaining + qtd);
+        }
+
         private static void AwakeCards() {
             foreach (Card card in CardsOnBoard[_playerOnTurn]) {
                 card.WakeUp();
@@ -128,6 +137,10 @@ namespace GameServer {
         public static void DestroyCardForAll(int sId) {
             ServerSendData.SendDestroyCard(0, sId);
             ServerSendData.SendDestroyCard(1, sId);
+        }
+
+        public static void DestroyCardTo(int index, int sId) {
+            ServerSendData.SendDestroyCard(index, sId);
         }
 
         public static void StartAttackEvent(long playerIndex, long sId) {
@@ -161,13 +174,19 @@ namespace GameServer {
 
             //FIXME: Temp code for testing purposes
 
+            CardsOnDeck[0].Add(Database.GetCard(2, 0));
+            CardsOnDeck[0].Add(Database.GetCard(2, 0));
             CardsOnDeck[0].Add(Database.GetCard(0, 0));
             CardsOnDeck[0].Add(Database.GetCard(1, 0));
+            CardsOnDeck[0].Add(Database.GetCard(2, 0));
             CardsOnDeck[0].Add(Database.GetCard(0, 0));
             CardsOnDeck[0].Add(Database.GetCard(1, 0));
 
+            CardsOnDeck[1].Add(Database.GetCard(2, 1));
+            CardsOnDeck[1].Add(Database.GetCard(2, 1));
             CardsOnDeck[1].Add(Database.GetCard(0, 1));
             CardsOnDeck[1].Add(Database.GetCard(1, 1));
+            CardsOnDeck[1].Add(Database.GetCard(2, 1));
             CardsOnDeck[1].Add(Database.GetCard(0, 1));
             CardsOnDeck[1].Add(Database.GetCard(1, 1));
 
@@ -195,8 +214,6 @@ namespace GameServer {
                 throw new CardNotFoundException();
 
             _cardSelectCaller.Attack(attacked);
-
-            // TODO: Implement card values update
 
             AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
             AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);

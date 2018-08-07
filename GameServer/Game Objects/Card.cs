@@ -29,6 +29,8 @@ namespace GameServer.Game_Objects {
 
         public readonly bool IsTaunt;
 
+        public readonly bool IsSpell;
+
         private readonly Battlecry _battlecries;
         private readonly Deathrattle _deathrattles;
         private readonly Dictionary<PlayRequirement, bool> _playReqs;
@@ -58,6 +60,23 @@ namespace GameServer.Game_Objects {
             _playReqs = playReqs;
 
             IsTaunt = isTaunt;
+            IsSpell = false;
+        }
+
+        public Card(int cardId, int mana, Battlecry baseBattlecry, Dictionary<PlayRequirement, bool> playReqs) {
+            Place = CardPlace.DECK;
+            CardId = cardId;
+
+            Mana = mana;
+
+            CurrentMana = mana;
+
+            if (baseBattlecry != null)
+                _battlecries += baseBattlecry;
+
+            _playReqs = playReqs;
+
+            IsSpell = true;
         }
 
         public Card CloneCard() {
@@ -101,6 +120,7 @@ namespace GameServer.Game_Objects {
             _justPlayed = true;
             CallBattlecries();
         }
+
 
         private void CallBattlecries() {
             _battlecries?.Invoke(this);

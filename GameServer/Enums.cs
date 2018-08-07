@@ -17,7 +17,8 @@ namespace GameServer {
             SET_CAN_BE_TARGET,
             END_SELECT_TARGET,
             UPDATE_CARD_HEALTH,
-            DESTROY_CARD
+            DESTROY_CARD,
+            DISPLAY_SPELL
         }
 
         public enum ClientPackets {

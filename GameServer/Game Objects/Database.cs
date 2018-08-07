@@ -11,6 +11,7 @@ namespace GameServer.Game_Objects {
             Console.WriteLine("Initializing Card Database");
             ModelDatabase.Add(new MatheusCard(0, 10, 2, 1, false));
             ModelDatabase.Add(new TalacioCard(1, 5, 1, 2, true));
+            ModelDatabase.Add(new CoinCard(2, 0));
             Console.WriteLine("Card Database Initialized");
         }
 
@@ -20,16 +21,25 @@ namespace GameServer.Game_Objects {
             if(behaviourModel == null)
                 throw new BehaviourNotFoundException();
 
-            Card toInstantiate = new Card(
-                behaviourModel.Id, 
-                behaviourModel.Health, 
-                behaviourModel.Attack, 
-                behaviourModel.Mana,
-                behaviourModel.IsTaunt,
-                behaviourModel.GetBattlecry(), 
-                behaviourModel.GetDeathrattle(),
-                behaviourModel.PlayRequirements
-            );
+            Card toInstantiate;
+            if (!behaviourModel.IsSpell)
+                toInstantiate = new Card(
+                    behaviourModel.Id,
+                    behaviourModel.Health,
+                    behaviourModel.Attack,
+                    behaviourModel.Mana,
+                    behaviourModel.IsTaunt,
+                    behaviourModel.GetBattlecry(),
+                    behaviourModel.GetDeathrattle(),
+                    behaviourModel.PlayRequirements
+                );
+            else
+                toInstantiate = new Card(
+                    behaviourModel.Id,
+                    behaviourModel.Mana,
+                    behaviourModel.GetBattlecry(),
+                    behaviourModel.PlayRequirements
+                );
 
             toInstantiate.AssignCard(ownerIndex);
 

@@ -2,7 +2,7 @@
 using GameServer.Game_Objects;
 
 namespace GameServer.Card_Behaviours {
-    internal class CardModel {
+    public class CardModel {
         public int Id { get; }
 
         public int Health { get; }
@@ -10,6 +10,8 @@ namespace GameServer.Card_Behaviours {
         public int Mana { get; }
 
         public bool IsTaunt { get; }
+
+        public bool IsSpell { get; }
 
         public Dictionary<Enums.PlayRequirement, bool> PlayRequirements { get; protected set; }
 
@@ -19,6 +21,13 @@ namespace GameServer.Card_Behaviours {
             Attack = attack;
             Mana = mana;
             IsTaunt = isTaunt;
+            IsSpell = false;
+        }
+
+        protected CardModel(int id, int mana) {
+            Id = id;
+            Mana = mana;
+            IsSpell = true;
         }
 
         public virtual Battlecry GetBattlecry() {

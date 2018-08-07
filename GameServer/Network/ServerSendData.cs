@@ -147,5 +147,17 @@ namespace GameServer.Network {
                 NetworkSocket.SendDataTo(index, buffer.ToArray());
             }
         }
+
+        public static void SendDisplaySpell(long index, long cardId) {
+            Console.WriteLine("Sending DisplaySpell CardID = " + cardId + " to: " + index);
+
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteLong((long)ServerPackets.DISPLAY_SPELL);
+
+                buffer.WriteLong(cardId);
+
+                NetworkSocket.SendDataTo(index, buffer.ToArray());
+            }
+        }
     }
 }
