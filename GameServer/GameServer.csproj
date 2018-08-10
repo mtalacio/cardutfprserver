@@ -47,6 +47,7 @@
     <Compile Include="Card Behaviours\Card_Coin.cs" />
     <Compile Include="Card Behaviours\Card_Matheus.cs" />
     <Compile Include="Card Behaviours\Card_Talacio.cs" />
+    <Compile Include="Card Behaviours\Hero.cs" />
     <Compile Include="Game Objects\Database.cs" />
     <Compile Include="Network\AccountManager.cs" />
     <Compile Include="Network\Lobby.cs" />

@@ -13,9 +13,7 @@ namespace GameServer.Card_Behaviours {
 
         public override Battlecry GetBattlecry() {
             return card => {
-                GameEngine.MathAvailableManaTo(card.OwnerIndex, 1);
-                GameEngine.DestroyCardTo(card.OwnerIndex, card.ServerId);
-                GameEngine.AddToGraveyard(card);
+                GameEngine.IncrementAvailableMana(card.OwnerIndex, 1);
             };
         }
     }

@@ -18,7 +18,9 @@ namespace GameServer {
             END_SELECT_TARGET,
             UPDATE_CARD_HEALTH,
             DESTROY_CARD,
-            DISPLAY_SPELL
+            DISPLAY_SPELL,
+            SEND_HERO_PORTRAIT,
+            SEND_ENEMY_PORTRAIT
         }
 
         public enum ClientPackets {

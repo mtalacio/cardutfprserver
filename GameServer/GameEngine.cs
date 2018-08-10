@@ -64,8 +64,8 @@ namespace GameServer {
         }
 
         public static void AddToGraveyard(Card card) {
-            CardsOnGraveyard[card.OwnerIndex].Add(card);
             CardsOnBoard[card.OwnerIndex].Remove(card);
+            CardsOnGraveyard[card.OwnerIndex].Add(card);
             card.ChangePlace(CardPlace.GRAVEYARD);
         }
 
@@ -119,7 +119,7 @@ namespace GameServer {
             PlayerList[index].ManaRemaining = mana;
         }
 
-        public static void MathAvailableManaTo(int index, int qtd) {
+        public static void IncrementAvailableMana(int index, int qtd) {
             SetAvailableMana(index, PlayerList[index].ManaRemaining + qtd);
         }
 
@@ -141,6 +141,19 @@ namespace GameServer {
 
         public static void DestroyCardTo(int index, int sId) {
             ServerSendData.SendDestroyCard(index, sId);
+        }
+
+        private static void CreateHeros() {
+            Card hero0 = Database.GetCard(0, 0);
+            Card hero1 = Database.GetCard(0, 1);
+
+            CardsOnBoard[0].Add(hero0);
+            CardsOnBoard[1].Add(hero1);
+
+            ServerSendData.SendHeroPortrait(0, hero0.ServerId);
+            ServerSendData.SendEnemyPortrait(0, hero1.ServerId);
+            ServerSendData.SendHeroPortrait(1, hero1.ServerId);
+            ServerSendData.SendEnemyPortrait(1, hero0.ServerId);
         }
 
         public static void StartAttackEvent(long playerIndex, long sId) {
@@ -171,23 +184,24 @@ namespace GameServer {
             _playerOnTurn = 0;
             ServerSendData.SendSetTurn(0, 1);
             ServerSendData.SendSetTurn(1, 0);
+            CreateHeros();
 
             //FIXME: Temp code for testing purposes
-
+           
             CardsOnDeck[0].Add(Database.GetCard(2, 0));
             CardsOnDeck[0].Add(Database.GetCard(2, 0));
-            CardsOnDeck[0].Add(Database.GetCard(0, 0));
+            CardsOnDeck[0].Add(Database.GetCard(3, 0));
             CardsOnDeck[0].Add(Database.GetCard(1, 0));
             CardsOnDeck[0].Add(Database.GetCard(2, 0));
-            CardsOnDeck[0].Add(Database.GetCard(0, 0));
+            CardsOnDeck[0].Add(Database.GetCard(3, 0));
             CardsOnDeck[0].Add(Database.GetCard(1, 0));
 
             CardsOnDeck[1].Add(Database.GetCard(2, 1));
             CardsOnDeck[1].Add(Database.GetCard(2, 1));
-            CardsOnDeck[1].Add(Database.GetCard(0, 1));
+            CardsOnDeck[1].Add(Database.GetCard(3, 1));
             CardsOnDeck[1].Add(Database.GetCard(1, 1));
             CardsOnDeck[1].Add(Database.GetCard(2, 1));
-            CardsOnDeck[1].Add(Database.GetCard(0, 1));
+            CardsOnDeck[1].Add(Database.GetCard(3, 1));
             CardsOnDeck[1].Add(Database.GetCard(1, 1));
 
             DrawCardTo(0, 3);

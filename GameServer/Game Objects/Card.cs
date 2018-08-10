@@ -124,6 +124,11 @@ namespace GameServer.Game_Objects {
 
         private void CallBattlecries() {
             _battlecries?.Invoke(this);
+
+            if (IsSpell) {
+                GameEngine.DestroyCardTo(OwnerIndex, ServerId);
+                GameEngine.AddToGraveyard(this);
+            }
         }
 
         private void Die() {

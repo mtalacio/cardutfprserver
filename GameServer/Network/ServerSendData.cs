@@ -159,5 +159,29 @@ namespace GameServer.Network {
                 NetworkSocket.SendDataTo(index, buffer.ToArray());
             }
         }
+
+        public static void SendHeroPortrait(long index, long sId) {
+            Console.WriteLine("Sending HeroPortrait SID = " + sId + " to: " + index);
+
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteLong((long)ServerPackets.SEND_HERO_PORTRAIT);
+
+                buffer.WriteLong(sId);
+
+                NetworkSocket.SendDataTo(index, buffer.ToArray());
+            }
+        }
+
+        public static void SendEnemyPortrait(long index, long sId) {
+            Console.WriteLine("Sending EnemyPortrait SID = " + sId + " to: " + index);
+
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteLong((long)ServerPackets.SEND_ENEMY_PORTRAIT);
+
+                buffer.WriteLong(sId);
+
+                NetworkSocket.SendDataTo(index, buffer.ToArray());
+            }
+        }
     }
 }
