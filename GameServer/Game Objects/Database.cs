@@ -13,6 +13,7 @@ namespace GameServer.Game_Objects {
             ModelDatabase.Add(new TalacioCard(1, 5, 1, 2, true));
             ModelDatabase.Add(new CoinCard(2, 0));
             ModelDatabase.Add(new MatheusCard(3, 10, 2, 1, false));
+            ModelDatabase.Add(new HeroKillerCard(4, 30, 15, 0, false));
             Console.WriteLine("Card Database Initialized");
         }
 

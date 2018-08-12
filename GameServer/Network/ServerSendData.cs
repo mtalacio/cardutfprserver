@@ -183,5 +183,17 @@ namespace GameServer.Network {
                 NetworkSocket.SendDataTo(index, buffer.ToArray());
             }
         }
+
+        public static void SendEndGame(long index, long isWinner) {
+            Console.WriteLine("Sending EndGame IsWinner value = " + isWinner + " to: " + index);
+
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteLong((long)ServerPackets.END_GAME);
+
+                buffer.WriteLong(isWinner);
+
+                NetworkSocket.SendDataTo(index, buffer.ToArray());
+            }
+        }
     }
 }

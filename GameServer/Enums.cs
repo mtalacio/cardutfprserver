@@ -20,7 +20,8 @@ namespace GameServer {
             DESTROY_CARD,
             DISPLAY_SPELL,
             SEND_HERO_PORTRAIT,
-            SEND_ENEMY_PORTRAIT
+            SEND_ENEMY_PORTRAIT,
+            END_GAME
         }
 
         public enum ClientPackets {

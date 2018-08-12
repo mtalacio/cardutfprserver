@@ -44,9 +44,10 @@
   <ItemGroup>
     <Compile Include="AvailablePlaysVerifier.cs" />
     <Compile Include="Card Behaviours\CardModel.cs" />
-    <Compile Include="Card Behaviours\Card_Coin.cs" />
-    <Compile Include="Card Behaviours\Card_Matheus.cs" />
-    <Compile Include="Card Behaviours\Card_Talacio.cs" />
+    <Compile Include="Card Behaviours\CoinCard.cs" />
+    <Compile Include="Card Behaviours\HeroKillerCard.cs" />
+    <Compile Include="Card Behaviours\MatheusCard.cs" />
+    <Compile Include="Card Behaviours\TalacioCard.cs" />
     <Compile Include="Card Behaviours\Hero.cs" />
     <Compile Include="Game Objects\Database.cs" />
     <Compile Include="Network\AccountManager.cs" />

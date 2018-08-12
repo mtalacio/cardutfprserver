@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using static GameServer.Enums;
 
 namespace GameServer.Network {
@@ -9,7 +10,6 @@ namespace GameServer.Network {
         private TcpListener _serverSocket;
         public static readonly NetworkSocket Instance = new NetworkSocket();
         private static readonly Client[] Clients = new Client[Constants.MAX_PLAYERS];
-
 
         public void ServerStart() {
 
@@ -39,6 +39,17 @@ namespace GameServer.Network {
                 SendWelcomeMessage(i);
                 return;
             }
+        }
+
+        public void EndServer() {
+            Clients[0].Socket1.Close();
+            Clients[1].Socket1.Close();
+
+            _serverSocket.Stop();
+
+            Console.WriteLine("Resetting server...");
+            System.Diagnostics.Process.Start(Assembly.GetExecutingAssembly().Location);
+            Environment.Exit(0);
         }
 
         public static void SendDataTo(long index, byte[] data) {

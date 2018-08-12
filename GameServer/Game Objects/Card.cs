@@ -132,6 +132,11 @@ namespace GameServer.Game_Objects {
         }
 
         private void Die() {
+            if (CardId == 0) {
+                GameEngine.EndGame(OwnerIndex);
+                return;
+            }
+
             Console.WriteLine(">> Card SID = " + ServerId + " died");
             CallDeathrattles();
         }

@@ -3,6 +3,7 @@ using GameServer.Network;
 using GameServer.Utils;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using static GameServer.Enums;
 
 namespace GameServer {
@@ -156,9 +157,18 @@ namespace GameServer {
             ServerSendData.SendEnemyPortrait(1, hero0.ServerId);
         }
 
+        public static void EndGame(int loserIndex) {
+            Console.WriteLine("Game Ended with loser index value = " + loserIndex);
+
+            ServerSendData.SendEndGame(0, loserIndex == 0 ? 0 : 1);
+            ServerSendData.SendEndGame(1, loserIndex == 1 ? 0 : 1);
+
+            NetworkSocket.Instance.EndServer();
+        }
+
         public static void StartAttackEvent(long playerIndex, long sId) {
             if(playerIndex != _playerOnTurn)
-                throw new IllegalMessageReceivedException("EndTurn recebido por jogador não permitido.");
+                throw new IllegalMessageReceivedException("AttackEvent recebido por jogador não permitido.");
 
             Card attacker = CardsOnBoard[_playerOnTurn].Find(x => x.ServerId == sId);
             if(attacker == null)
@@ -187,7 +197,8 @@ namespace GameServer {
             CreateHeros();
 
             //FIXME: Temp code for testing purposes
-           
+
+            CardsOnDeck[0].Add(Database.GetCard(4, 0));
             CardsOnDeck[0].Add(Database.GetCard(2, 0));
             CardsOnDeck[0].Add(Database.GetCard(2, 0));
             CardsOnDeck[0].Add(Database.GetCard(3, 0));
@@ -196,6 +207,7 @@ namespace GameServer {
             CardsOnDeck[0].Add(Database.GetCard(3, 0));
             CardsOnDeck[0].Add(Database.GetCard(1, 0));
 
+            CardsOnDeck[0].Add(Database.GetCard(4, 1));
             CardsOnDeck[1].Add(Database.GetCard(2, 1));
             CardsOnDeck[1].Add(Database.GetCard(2, 1));
             CardsOnDeck[1].Add(Database.GetCard(3, 1));
