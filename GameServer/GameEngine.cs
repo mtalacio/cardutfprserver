@@ -22,6 +22,7 @@ namespace GameServer {
             PlayerList.Add(player);
         }
 
+        private static List<Card> MasterList { get; } = new List<Card>();
         public static List<Card>[] CardsOnBoard { get; } = {new List<Card>(), new List<Card>()};
         public static List<Card>[] CardsOnHand { get; } = { new List<Card>(), new List<Card>() };
         public static List<Card>[] CardsOnDeck { get; } = { new List<Card>(), new List<Card>() };
@@ -41,6 +42,9 @@ namespace GameServer {
             CardsOnHand[_playerOnTurn].Remove(cardPlayed);
             CardsOnBoard[_playerOnTurn].Add(cardPlayed);
 
+            SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].ManaRemaining - cardPlayed.CurrentMana);
+            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
+
             cardPlayed.PlayCard();
 
             if(cardPlayed.IsSpell)
@@ -57,11 +61,13 @@ namespace GameServer {
                     boardIndex
                 );
 
-            SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].ManaRemaining - cardPlayed.CurrentMana);
-            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
-
             if (PlayerList[_playerOnTurn].ManaRemaining < 0)
                 throw new IllegalGameEventException("Carta jogada sem ter mana suficiente! Jogador Index: " + _playerOnTurn);
+        }
+
+        public static void AddToGame(Card card, int ownerIndex) {
+            CardsOnDeck[ownerIndex].Add(card);
+            MasterList.Add(card);
         }
 
         public static void AddToGraveyard(Card card) {
@@ -144,6 +150,14 @@ namespace GameServer {
             ServerSendData.SendDestroyCard(index, sId);
         }
 
+        public static void DamageCard(int sId, int value) {
+            Card target = MasterList.Find(x => x.ServerId == sId);
+            if(target == null)
+                throw new CardNotFoundException();
+
+            target.Damage(value);
+        }
+
         private static void CreateHeros() {
             Card hero0 = Database.GetCard(0, 0);
             Card hero1 = Database.GetCard(0, 1);
@@ -184,6 +198,33 @@ namespace GameServer {
             OnCardSelectedCallback += StartAttackResponse;
         }
 
+        public static void PromptTargets(Dictionary<TargetRequirement, int> reqs) {
+            ServerSendData.SendStartSelectTarget(_playerOnTurn);
+
+            for (int i = 0; i < 2; i++) {
+                foreach (Card card in CardsOnBoard[i]) {
+                    bool canTarget = false;
+
+                    if (reqs.TryGetValue(TargetRequirement.ENEMY_MINION, out int extraParam)) {
+                        canTarget = card.OwnerIndex != _playerOnTurn;
+                    }
+
+                    if (reqs.TryGetValue(TargetRequirement.FRIENDLY_MINION, out extraParam)) {
+                        canTarget = card.OwnerIndex == _playerOnTurn;
+                    }
+
+                    ServerSendData.SendSetCanTarget(_playerOnTurn, card.ServerId, canTarget ? 1 : 0);
+                }
+            }
+        }
+
+        public static void EndTargetEvent(OnCardSelected associatedEvent) {
+            OnCardSelectedCallback -= associatedEvent;
+            ServerSendData.SendEndSelectTarget(_playerOnTurn, 1);
+            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
+            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
+        }
+
         #endregion
 
         #region Game State
@@ -198,23 +239,23 @@ namespace GameServer {
 
             //FIXME: Temp code for testing purposes
 
-            CardsOnDeck[0].Add(Database.GetCard(4, 0));
-            CardsOnDeck[0].Add(Database.GetCard(2, 0));
-            CardsOnDeck[0].Add(Database.GetCard(2, 0));
-            CardsOnDeck[0].Add(Database.GetCard(3, 0));
-            CardsOnDeck[0].Add(Database.GetCard(1, 0));
-            CardsOnDeck[0].Add(Database.GetCard(2, 0));
-            CardsOnDeck[0].Add(Database.GetCard(3, 0));
-            CardsOnDeck[0].Add(Database.GetCard(1, 0));
+            AddToGame(Database.GetCard(5, 0), 0);
+            AddToGame(Database.GetCard(2, 0), 0);
+            AddToGame(Database.GetCard(2, 0), 0);
+            AddToGame(Database.GetCard(3, 0), 0);
+            AddToGame(Database.GetCard(1, 0), 0);
+            AddToGame(Database.GetCard(2, 0), 0);
+            AddToGame(Database.GetCard(3, 0), 0);
+            AddToGame(Database.GetCard(1, 0), 0);
 
-            CardsOnDeck[0].Add(Database.GetCard(4, 1));
-            CardsOnDeck[1].Add(Database.GetCard(2, 1));
-            CardsOnDeck[1].Add(Database.GetCard(2, 1));
-            CardsOnDeck[1].Add(Database.GetCard(3, 1));
-            CardsOnDeck[1].Add(Database.GetCard(1, 1));
-            CardsOnDeck[1].Add(Database.GetCard(2, 1));
-            CardsOnDeck[1].Add(Database.GetCard(3, 1));
-            CardsOnDeck[1].Add(Database.GetCard(1, 1));
+            AddToGame(Database.GetCard(5, 1), 1);
+            AddToGame(Database.GetCard(2, 1), 1);
+            AddToGame(Database.GetCard(2, 1), 1);
+            AddToGame(Database.GetCard(3, 1), 1);
+            AddToGame(Database.GetCard(1, 1), 1);
+            AddToGame(Database.GetCard(2, 1), 1);
+            AddToGame(Database.GetCard(3, 1), 1);
+            AddToGame(Database.GetCard(1, 1), 1);
 
             DrawCardTo(0, 3);
             DrawCardTo(1, 4);
@@ -232,20 +273,14 @@ namespace GameServer {
         private static Card _cardSelectCaller;
 
         private static void StartAttackResponse(long sId) {
-
-            ServerSendData.SendEndSelectTarget(_playerOnTurn, 1);
-
             Card attacked = CardsOnBoard[_playerOnTurn == 0 ? 1 : 0].Find(x => x.ServerId == sId);
             if(attacked == null)
                 throw new CardNotFoundException();
 
             _cardSelectCaller.Attack(attacked);
-
-            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
-            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
-
-            OnCardSelectedCallback -= StartAttackResponse;
             _cardSelectCaller = null;
+
+            EndTargetEvent(StartAttackResponse);
         }
 
         #endregion

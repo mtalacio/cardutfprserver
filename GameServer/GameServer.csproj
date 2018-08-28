@@ -45,6 +45,7 @@
     <Compile Include="AvailablePlaysVerifier.cs" />
     <Compile Include="Card Behaviours\CardModel.cs" />
     <Compile Include="Card Behaviours\CoinCard.cs" />
+    <Compile Include="Card Behaviours\FiremanCard.cs" />
     <Compile Include="Card Behaviours\HeroKillerCard.cs" />
     <Compile Include="Card Behaviours\MatheusCard.cs" />
     <Compile Include="Card Behaviours\TalacioCard.cs" />

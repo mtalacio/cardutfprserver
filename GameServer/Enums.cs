@@ -53,6 +53,11 @@ namespace GameServer {
             MINIONS_ON_BOARD,
             ENEMIES_ON_BOARD
         }
+
+        public enum TargetRequirement {
+            ENEMY_MINION,
+            FRIENDLY_MINION
+        }
     }
 }
 

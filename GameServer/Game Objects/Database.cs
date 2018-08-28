@@ -14,6 +14,7 @@ namespace GameServer.Game_Objects {
             ModelDatabase.Add(new CoinCard(2, 0));
             ModelDatabase.Add(new MatheusCard(3, 10, 2, 1, false));
             ModelDatabase.Add(new HeroKillerCard(4, 30, 15, 0, false));
+            ModelDatabase.Add(new FiremanCard(5, 2, 1, 1, false));
             Console.WriteLine("Card Database Initialized");
         }
 

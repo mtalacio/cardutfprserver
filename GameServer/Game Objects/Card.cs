@@ -128,6 +128,7 @@ namespace GameServer.Game_Objects {
             if (IsSpell) {
                 GameEngine.DestroyCardTo(OwnerIndex, ServerId);
                 GameEngine.AddToGraveyard(this);
+                // TODO: Verify hand and board plays.
             }
         }
 
