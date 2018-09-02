@@ -43,9 +43,8 @@ namespace GameServer {
             CardsOnBoard[_playerOnTurn].Add(cardPlayed);
 
             SetAvailableMana(_playerOnTurn, PlayerList[_playerOnTurn].ManaRemaining - cardPlayed.CurrentMana);
-            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
-
             cardPlayed.PlayCard();
+            CheckAvailableMoves();
 
             if(cardPlayed.IsSpell)
                 ServerSendData.SendDisplaySpell(
@@ -97,8 +96,7 @@ namespace GameServer {
             ServerSendData.SendSetTurn(0, _playerOnTurn == 0 ? 1 : 0);
             ServerSendData.SendSetTurn(1, _playerOnTurn == 0 ? 0 : 1);
 
-            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
-            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
+            CheckAvailableMoves();
         }
 
         public static void DrawCardTo(long index, long qtd) {
@@ -113,7 +111,7 @@ namespace GameServer {
             }
 
             if(index == _playerOnTurn)
-                AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
+                CheckAvailableMoves();
         }
 
         private static void SetTotalMana(int index, int mana) {
@@ -158,12 +156,24 @@ namespace GameServer {
             target.Damage(value);
         }
 
+        public static void CheckAvailableMoves() {
+            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
+            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
+        }
+
         private static void CreateHeros() {
             Card hero0 = Database.GetCard(0, 0);
             Card hero1 = Database.GetCard(0, 1);
 
+            AddToGame(hero0, 0);
+            CardsOnDeck[0].Remove(hero0);
             CardsOnBoard[0].Add(hero0);
+            hero0.ChangePlace(CardPlace.BOARD);
+
+            AddToGame(hero1, 1);
+            CardsOnDeck[1].Remove(hero1);
             CardsOnBoard[1].Add(hero1);
+            hero1.ChangePlace(CardPlace.BOARD);
 
             ServerSendData.SendHeroPortrait(0, hero0.ServerId);
             ServerSendData.SendEnemyPortrait(0, hero1.ServerId);
@@ -221,8 +231,7 @@ namespace GameServer {
         public static void EndTargetEvent(OnCardSelected associatedEvent) {
             OnCardSelectedCallback -= associatedEvent;
             ServerSendData.SendEndSelectTarget(_playerOnTurn, 1);
-            AvailablePlaysVerifier.CheckBoardPlays(_playerOnTurn, CardsOnBoard[_playerOnTurn]);
-            AvailablePlaysVerifier.CheckHandPlays(_playerOnTurn, PlayerList[_playerOnTurn], CardsOnHand[_playerOnTurn]);
+            CheckAvailableMoves();
         }
 
         #endregion

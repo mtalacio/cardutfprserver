@@ -1,8 +1,13 @@
-﻿namespace GameServer.Card_Behaviours {
+﻿using System.Collections.Generic;
+
+namespace GameServer.Card_Behaviours {
     public class Hero : CardModel {
 
         public Hero(int id, int health, int attack, int mana, bool isTaunt) : base(id, health, attack, mana, isTaunt) {
-            PlayRequirements = null;
+            PlayRequirements = new Dictionary<Enums.PlayRequirement, bool> {
+                {Enums.PlayRequirement.MINIONS_ON_BOARD, false},
+                {Enums.PlayRequirement.ENEMIES_ON_BOARD, false}
+            };
         }
     }
 }

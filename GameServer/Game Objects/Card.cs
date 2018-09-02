@@ -121,14 +121,13 @@ namespace GameServer.Game_Objects {
             CallBattlecries();
         }
 
-
         private void CallBattlecries() {
             _battlecries?.Invoke(this);
 
             if (IsSpell) {
                 GameEngine.DestroyCardTo(OwnerIndex, ServerId);
                 GameEngine.AddToGraveyard(this);
-                // TODO: Verify hand and board plays.
+                GameEngine.CheckAvailableMoves();
             }
         }
 

@@ -20,7 +20,7 @@ namespace GameServer.Network {
             _serverSocket = new TcpListener(IPAddress.Any, 5500);
             _serverSocket.Start();
             _serverSocket.BeginAcceptTcpClient(OnClientConnect, null);
-            Console.WriteLine("Server Started");
+            Console.WriteLine("Server Started at: " + _serverSocket.LocalEndpoint);
         }
 
         private void OnClientConnect(IAsyncResult result) {

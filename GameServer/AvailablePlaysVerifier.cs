@@ -14,14 +14,14 @@ namespace GameServer {
                 }
 
                 if (card.CheckRequirement(PlayRequirement.MINIONS_ON_BOARD)) {
-                    if (GameEngine.CardsOnBoard[playerIndex].Count == 0) {
+                    if (GameEngine.CardsOnBoard[playerIndex].Count <= 1) { // Have to be 1 because there is a hero card on board.
                         ServerSendData.SendSetCanPlayCard(playerIndex, card.ServerId, 0);
                         continue;
                     }
                 }
 
-                if (card.CheckRequirement(PlayRequirement.ENEMIES_ON_BOARD)) {
-                    if (GameEngine.CardsOnBoard[playerIndex == 0 ? 1 : 0].Count == 0) {
+                if (card.CheckRequirement(PlayRequirement.ENEMIES_ON_BOARD)) { // Have to be 1 because there is a hero card on board.
+                    if (GameEngine.CardsOnBoard[playerIndex == 0 ? 1 : 0].Count <= 1) {
                         ServerSendData.SendSetCanPlayCard(playerIndex, card.ServerId, 0);
                         continue;
                     }

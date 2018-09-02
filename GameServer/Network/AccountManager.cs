@@ -15,11 +15,11 @@ namespace GameServer.Network {
 
         public static void Login(long playerIndex, string username, string password) {
             try {
-                object[,] account = MySql.GetRows("select * from players where login = '" + username + "'");
-                string dbPass = account[2, 0].ToString();
+                //object[,] account = MySql.GetRows("select * from players where login = '" + username + "'");
+                //string dbPass = account[2, 0].ToString();
 
-                if (!dbPass.Equals(password))
-                    throw new IncorrectPasswordException();
+                //if (!dbPass.Equals(password))
+                    //throw new IncorrectPasswordException();
 
                 Player newPlayer = new Player(playerIndex, username);
                 GameEngine.AddPlayer(newPlayer);
