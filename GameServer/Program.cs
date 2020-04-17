@@ -44,7 +44,7 @@ namespace GameServer {
         private static void KickPlayer(int index) {
             Console.WriteLine("Kicking Player index: " + index);
             ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteLong((long)ServerPackets.SKick);
+            buffer.WriteLong((long)ServerPackets.KICK);
             buffer.WriteLong(index);
             NetworkSocket.SendDataTo(0, buffer.ToArray());
         }

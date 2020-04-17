@@ -9,27 +9,42 @@ namespace GameServer.Game_Objects {
 
         public static void InitializeCardDatabase() {
             Console.WriteLine("Initializing Card Database");
-            ModelDatabase.Add(new MatheusCard(0, 10, 2, 2));
-            ModelDatabase.Add(new TalacioCard(1, 2, 10, 2));
+            ModelDatabase.Add(new Hero(0, 20, 0, 0, false));
+            ModelDatabase.Add(new TalacioCard(1, 5, 1, 2, true));
+            ModelDatabase.Add(new CoinCard(2, 0));
+            ModelDatabase.Add(new MatheusCard(3, 10, 2, 1, false));
+            ModelDatabase.Add(new HeroKillerCard(4, 30, 15, 0, false));
+            ModelDatabase.Add(new FiremanCard(5, 2, 1, 1, false));
             Console.WriteLine("Card Database Initialized");
         }
 
-        public static Card GetCard(int cardId, int serverId, int ownerIndex) {
+        public static Card GetCard(int cardId, int ownerIndex) {
             CardModel behaviourModel = ModelDatabase.Find(x => x.Id == cardId);
             
             if(behaviourModel == null)
                 throw new BehaviourNotFoundException();
 
-            Card toInstantiate = new Card(
-                behaviourModel.Id, 
-                behaviourModel.Health, 
-                behaviourModel.Attack, 
-                behaviourModel.Mana, 
-                behaviourModel.GetBattlecry(), 
-                behaviourModel.GetDeathrattle()
+            Card toInstantiate;
+            if (!behaviourModel.IsSpell)
+                toInstantiate = new Card(
+                    behaviourModel.Id,
+                    behaviourModel.Health,
+                    behaviourModel.Attack,
+                    behaviourModel.Mana,
+                    behaviourModel.IsTaunt,
+                    behaviourModel.GetBattlecry(),
+                    behaviourModel.GetDeathrattle(),
+                    behaviourModel.PlayRequirements
+                );
+            else
+                toInstantiate = new Card(
+                    behaviourModel.Id,
+                    behaviourModel.Mana,
+                    behaviourModel.GetBattlecry(),
+                    behaviourModel.PlayRequirements
                 );
 
-            toInstantiate.InstantiateCard(serverId, ownerIndex);
+            toInstantiate.AssignCard(ownerIndex);
 
             return toInstantiate;
         }

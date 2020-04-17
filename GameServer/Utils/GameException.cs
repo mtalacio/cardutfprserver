@@ -22,11 +22,19 @@ namespace GameServer.Utils {
         public IllegalMessageReceivedException(string message) : base(message) { }
     }
 
+    public class IllegalGameEventException : Exception {
+        public IllegalGameEventException(string message) : base(message) { }
+    }
+
     public class BehaviourNotFoundException : Exception {
         public BehaviourNotFoundException() : base("Carta não encontrada no banco de dados") { }
     }
 
     public class CardNotFoundException : Exception {
         public CardNotFoundException() : base("Carta não encontrada no jogo") { }
+    }
+
+    public class RequirementException : Exception {
+        public RequirementException(string message) : base(message) { }
     }
 }

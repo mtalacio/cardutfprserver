@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using static GameServer.Enums;
 
 namespace GameServer.Network {
+
+    //TODO: Change the ByteBuffer to using statements
+
     internal static class ServerHandleData {
         private delegate void Packet(long index, byte[] data);
         private static readonly Dictionary<long, Packet> Packets = new Dictionary<long, Packet>();
@@ -11,13 +14,14 @@ namespace GameServer.Network {
 
         public static void InitMessages() {
             Console.WriteLine("Initializing Network Messages...");
-            Packets.Add((int)ClientPackets.CNewAccount, Packet_CNewAccount);
-            Packets.Add((int)ClientPackets.CLogin, Packet_CLogin);
-            Packets.Add((int)ClientPackets.PlayCard, Packet_CardPlayed);
-            Packets.Add((int)ClientPackets.EndTurn, Packet_TurnEnded);
-            Packets.Add((int)ClientPackets.PlayerReady, Packet_PlayerRead);
-            Packets.Add((int)ClientPackets.DrawCards, Packet_DrawCard);
-            
+            Packets.Add((int)ClientPackets.NEW_ACCOUNT, Packet_CNewAccount);
+            Packets.Add((int)ClientPackets.LOGIN, Packet_CLogin);
+            Packets.Add((int)ClientPackets.PLAY_CARD, Packet_CardPlayed);
+            Packets.Add((int)ClientPackets.END_TURN, Packet_TurnEnded);
+            Packets.Add((int)ClientPackets.PLAYER_READY, Packet_PlayerRead);
+            Packets.Add((int)ClientPackets.DRAW_CARDS, Packet_DrawCard);
+            Packets.Add((int)ClientPackets.REQUEST_ATTACK_EVENT, Packet_RequestAttackEvent);
+            Packets.Add((int)ClientPackets.TARGET_SELECT, Packet_TargetSelect);
         }
 
         public static void HandleData(long index, byte[] data) {
@@ -121,7 +125,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_CardPlayed(long index, byte[] data) {
-            Console.WriteLine("Received: CardPlayed from:" + index);
+            Console.WriteLine("Received CardPlayed from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -135,7 +139,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_TurnEnded(long index, byte[] data) {
-            Console.WriteLine("Received: CardPlayed from:" + index);
+            Console.WriteLine("Received TurnEnded from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -144,7 +148,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_PlayerRead(long index, byte[] data) {
-            Console.WriteLine("Received: Player Ready from: " + index);
+            Console.WriteLine("Received PlayerReady from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -153,7 +157,7 @@ namespace GameServer.Network {
         }
 
         private static void Packet_DrawCard(long index, byte[] data) {
-            Console.WriteLine("Received: Draw Card from: " + index);
+            Console.WriteLine("Received DrawCard from: " + index);
             ByteBuffer buffer = new ByteBuffer();
             buffer.WriteBytes(data);
             buffer.ReadLong();
@@ -161,6 +165,35 @@ namespace GameServer.Network {
             long qtd = buffer.ReadLong();
 
             GameEngine.DrawCardTo(index, qtd);            
+        }
+
+        private static void Packet_RequestAttackEvent(long index, byte[] data) {
+            Console.WriteLine("Received RequestAttackEvent from: " + index);
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteBytes(data);
+                buffer.ReadLong();
+
+                long sid = buffer.ReadLong();
+
+                try {
+                    GameEngine.StartAttackEvent(index, sid);
+                }
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static void Packet_TargetSelect(long index, byte[] data) {
+            Console.WriteLine("Received TargetSelect from: " + index);
+            using (ByteBuffer buffer = new ByteBuffer()) {
+                buffer.WriteBytes(data);
+                buffer.ReadLong();
+
+                long sid = buffer.ReadLong();
+
+                GameEngine.OnCardSelectedCallback?.Invoke(sid);
+            }
         }
     }
 }
